@@ -22,7 +22,6 @@ public class ChatGPTAPI: @unchecked Sendable {
     
     public enum Constants {
         public static let defaultSystemText = "You're a helpful assistant"
-        public static let defaultTemperature = 0.5
     }
 
     public let client: Client
@@ -83,10 +82,13 @@ public class ChatGPTAPI: @unchecked Sendable {
         self.historyList.append(Message(role: "assistant", content: responseText))
     }
     
+  // note that AsyncSequence does not have a primary associated type, so
+  // we cannot return some AsyncSequence<String> here.
     public func sendMessageStream(text: String,
                                   model: ChatGPTModel = .gpt_hyphen_4o,
                                   systemText: String = ChatGPTAPI.Constants.defaultSystemText,
-                                  temperature: Double = ChatGPTAPI.Constants.defaultTemperature,
+                                  temperature: Double? = nil,
+                                  topP: Double? = nil,
                                   maxTokens: Int? = nil,
                                   responseFormat: Components.Schemas.CreateChatCompletionRequest.response_formatPayload? = nil,
                                   stop: Components.Schemas.CreateChatCompletionRequest.stopPayload? = nil,
@@ -96,13 +98,20 @@ public class ChatGPTAPI: @unchecked Sendable {
             messages.append(createMessage(imageData: imageData))
         }
         
-        let response = try await client.createChatCompletion(.init(headers: .init(accept: [.init(contentType: .text_event_hyphen_stream)]), body: .json(.init(
-            messages: messages,
-            model: .init(value1: nil, value2: model),
-            max_tokens: maxTokens,
-            response_format: responseFormat,
-            stop: stop,
-            stream: true))))
+        let response = try await client.createChatCompletion(
+          .init(
+            headers: .init(
+              accept: [.init(contentType: .text_event_hyphen_stream)]),
+            body: .json(.init(
+              messages: messages,
+              model: .init(value1: nil, value2: model),
+              max_tokens: maxTokens,
+              response_format: responseFormat,
+              stop: stop,
+              stream: true,
+              temperature: temperature,
+              top_p: topP
+            ))))
 
         do {
             let stream = try response.ok.body.text_event_hyphen_stream.asDecodedServerSentEventsWithJSONData(
@@ -136,7 +145,8 @@ public class ChatGPTAPI: @unchecked Sendable {
     public func sendMessage(text: String,
                             model: ChatGPTModel = .gpt_hyphen_4o,
                             systemText: String = ChatGPTAPI.Constants.defaultSystemText,
-                            temperature: Double = ChatGPTAPI.Constants.defaultTemperature,
+                            temperature: Double? = nil,
+                            topP: Double? = nil,
                             maxTokens: Int? = nil,
                             responseFormat: Components.Schemas.CreateChatCompletionRequest.response_formatPayload? = nil,
                             stop: Components.Schemas.CreateChatCompletionRequest.stopPayload? = nil,
@@ -151,7 +161,9 @@ public class ChatGPTAPI: @unchecked Sendable {
             model: .init(value1: nil, value2: model),
             max_tokens: maxTokens,
             response_format: responseFormat,
-            stop: stop
+            stop: stop,
+            temperature: temperature,
+            top_p: topP
         )))
     
         switch response {
