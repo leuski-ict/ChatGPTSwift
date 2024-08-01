@@ -16,7 +16,31 @@ import OpenAPIURLSession
 
 public typealias ChatCompletionTool = Components.Schemas.ChatCompletionTool
 public typealias ChatCompletionResponseMessage = Components.Schemas.ChatCompletionResponseMessage
-public typealias ChatGPTModel =  Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload
+
+public enum ChatGPTModel: Codable, Sendable, Hashable, CustomStringConvertible {
+  public typealias SystemPayload = Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload
+
+  case system(SystemPayload)
+  case user(String)
+
+  public var description: String {
+    switch self {
+    case .system(let value):
+      value.rawValue
+    case .user(let value):
+      value
+    }
+  }
+
+  var payload: Components.Schemas.CreateChatCompletionRequest.modelPayload {
+    switch self {
+    case .system(let value):
+        .init(value1: nil, value2: value)
+    case .user(let value):
+        .init(value1: value, value2: nil)
+    }
+  }
+}
 
 public class ChatGPTAPI: @unchecked Sendable {
     
@@ -85,7 +109,7 @@ public class ChatGPTAPI: @unchecked Sendable {
   // note that AsyncSequence does not have a primary associated type, so
   // we cannot return some AsyncSequence<String> here.
     public func sendMessageStream(text: String,
-                                  model: ChatGPTModel = .gpt_hyphen_4o,
+                                  model: ChatGPTModel = .system(.gpt_hyphen_4o),
                                   systemText: String = ChatGPTAPI.Constants.defaultSystemText,
                                   temperature: Double? = nil,
                                   topP: Double? = nil,
@@ -104,7 +128,7 @@ public class ChatGPTAPI: @unchecked Sendable {
               accept: [.init(contentType: .text_event_hyphen_stream)]),
             body: .json(.init(
               messages: messages,
-              model: .init(value1: nil, value2: model),
+              model: model.payload,
               max_tokens: maxTokens,
               response_format: responseFormat,
               stop: stop,
@@ -138,12 +162,12 @@ public class ChatGPTAPI: @unchecked Sendable {
             } else {
                 statusCode = 500
             }
-            throw getError(statusCode: statusCode, model: model.rawValue, payload: nil)
+            throw getError(statusCode: statusCode, model: model.description, payload: nil)
         }
     }
 
     public func sendMessage(text: String,
-                            model: ChatGPTModel = .gpt_hyphen_4o,
+                            model: ChatGPTModel = .system(.gpt_hyphen_4o),
                             systemText: String = ChatGPTAPI.Constants.defaultSystemText,
                             temperature: Double? = nil,
                             topP: Double? = nil,
@@ -158,7 +182,7 @@ public class ChatGPTAPI: @unchecked Sendable {
         
         let response = try await client.createChatCompletion(body: .json(.init(
             messages: messages,
-            model: .init(value1: nil, value2: model),
+            model: model.payload,
             max_tokens: maxTokens,
             response_format: responseFormat,
             stop: stop,
@@ -175,7 +199,7 @@ public class ChatGPTAPI: @unchecked Sendable {
             self.appendToHistoryList(userText: text, responseText: content)
             return content
         case .undocumented(let statusCode, let payload):
-            throw getError(statusCode: statusCode, model: model.rawValue, payload: payload)
+            throw getError(statusCode: statusCode, model: model.description, payload: payload)
         }
     }
     
@@ -230,7 +254,7 @@ public class ChatGPTAPI: @unchecked Sendable {
         switch response {
         case .ok(let response):
             switch response.body {
-            case .any(let body):
+            case .binary(let body):
                 var data = Data()
                 for try await byte in body {
                     data.append(contentsOf: byte)

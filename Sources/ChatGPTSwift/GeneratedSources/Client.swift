@@ -185,76 +185,6 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Creates a new edit for the provided input, instruction, and parameters.
-    ///
-    /// - Remark: HTTP `POST /edits`.
-    /// - Remark: Generated from `#/paths//edits/post(createEdit)`.
-    @available(*, deprecated)
-    public func createEdit(_ input: Operations.createEdit.Input) async throws -> Operations.createEdit.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.createEdit.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/edits",
-                    parameters: []
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .post
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                let body: OpenAPIRuntime.HTTPBody?
-                switch input.body {
-                case let .json(value):
-                    body = try converter.setRequiredRequestBodyAsJSON(
-                        value,
-                        headerFields: &request.headerFields,
-                        contentType: "application/json; charset=utf-8"
-                    )
-                }
-                return (request, body)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createEdit.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.CreateEditResponse.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
     /// Creates an image given a prompt.
     ///
     /// - Remark: HTTP `POST /images/generations`.
@@ -813,16 +743,16 @@ public struct Client: APIProtocol {
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
-                            "*/*"
+                            "application/octet-stream"
                         ]
                     )
                     switch chosenContentType {
-                    case "*/*":
+                    case "application/octet-stream":
                         body = try converter.getResponseBodyAsBinary(
                             OpenAPIRuntime.HTTPBody.self,
                             from: responseBody,
                             transforming: { value in
-                                .any(value)
+                                .binary(value)
                             }
                         )
                     default:
@@ -885,7 +815,9 @@ public struct Client: APIProtocol {
                             "response_format",
                             "temperature"
                         ],
-                        zeroOrMoreTimesPartNames: [],
+                        zeroOrMoreTimesPartNames: [
+                            "timestamp_granularities[]"
+                        ],
                         encoding: { part in
                             switch part {
                             case let .file(wrapped):
@@ -972,6 +904,20 @@ public struct Client: APIProtocol {
                                     headerFields: headerFields,
                                     body: body
                                 )
+                            case let .timestamp_granularities_lbrack__rbrack_(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
+                                let value = wrapped.payload
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "text/plain"
+                                )
+                                return .init(
+                                    name: "timestamp_granularities[]",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
                             }
                         }
                     )
@@ -992,7 +938,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.CreateTranscriptionResponse.self,
+                            Operations.createTranscription.Output.Ok.Body.jsonPayload.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -1147,7 +1093,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.CreateTranslationResponse.self,
+                            Operations.createTranslation.Output.Ok.Body.jsonPayload.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -1236,9 +1182,13 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Upload a file that can be used across various endpoints/features. The size of all the files uploaded by one organization can be up to 100 GB.
+    /// Upload a file that can be used across various endpoints. Individual files can be up to 512 MB, and the size of all files uploaded by one organization can be up to 100 GB.
     ///
-    /// The size of individual files for can be a maximum of 512MB. See the [Assistants Tools guide](/docs/assistants/tools) to learn more about the types of files supported. The Fine-tuning API only supports `.jsonl` files.
+    /// The Assistants API supports files up to 2 million tokens and of specific file types. See the [Assistants Tools guide](/docs/assistants/tools) for details.
+    ///
+    /// The Fine-tuning API only supports `.jsonl` files. The input also has certain required formats for fine-tuning [chat](/docs/api-reference/fine-tuning/chat-input) or [completions](/docs/api-reference/fine-tuning/completions-input) models.
+    ///
+    /// The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required [format](/docs/api-reference/batch/request-input).
     ///
     /// Please [contact us](https://help.openai.com/) if you need to increase these storage limits.
     ///
@@ -1536,6 +1486,325 @@ public struct Client: APIProtocol {
             }
         )
     }
+    /// Creates an intermediate [Upload](/docs/api-reference/uploads/object) object that you can add [Parts](/docs/api-reference/uploads/part-object) to. Currently, an Upload can accept at most 8 GB in total and expires after an hour after you create it.
+    ///
+    /// Once you complete the Upload, we will create a [File](/docs/api-reference/files/object) object that contains all the parts you uploaded. This File is usable in the rest of our platform as a regular File object.
+    ///
+    /// For certain `purpose`s, the correct `mime_type` must be specified. Please refer to documentation for the supported MIME types for your use case:
+    /// - [Assistants](/docs/assistants/tools/file-search/supported-files)
+    ///
+    /// For guidance on the proper filename extensions for each purpose, please follow the documentation on [creating a File](/docs/api-reference/files/create).
+    ///
+    ///
+    /// - Remark: HTTP `POST /uploads`.
+    /// - Remark: Generated from `#/paths//uploads/post(createUpload)`.
+    public func createUpload(_ input: Operations.createUpload.Input) async throws -> Operations.createUpload.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.createUpload.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/uploads",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.createUpload.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Upload.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Adds a [Part](/docs/api-reference/uploads/part-object) to an [Upload](/docs/api-reference/uploads/object) object. A Part represents a chunk of bytes from the file you are trying to upload. 
+    ///
+    /// Each Part can be at most 64 MB, and you can add Parts until you hit the Upload maximum of 8 GB.
+    ///
+    /// It is possible to add multiple Parts in parallel. You can decide the intended order of the Parts when you [complete the Upload](/docs/api-reference/uploads/complete).
+    ///
+    ///
+    /// - Remark: HTTP `POST /uploads/{upload_id}/parts`.
+    /// - Remark: Generated from `#/paths//uploads/{upload_id}/parts/post(addUploadPart)`.
+    public func addUploadPart(_ input: Operations.addUploadPart.Input) async throws -> Operations.addUploadPart.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.addUploadPart.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/uploads/{}/parts",
+                    parameters: [
+                        input.path.upload_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .multipartForm(value):
+                    body = try converter.setRequiredRequestBodyAsMultipart(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "multipart/form-data",
+                        allowsUnknownParts: false,
+                        requiredExactlyOncePartNames: [
+                            "data"
+                        ],
+                        requiredAtLeastOncePartNames: [],
+                        atMostOncePartNames: [],
+                        zeroOrMoreTimesPartNames: [],
+                        encoding: { part in
+                            switch part {
+                            case let .data(wrapped):
+                                var headerFields: HTTPTypes.HTTPFields = .init()
+                                let value = wrapped.payload
+                                let body = try converter.setRequiredRequestBodyAsBinary(
+                                    value.body,
+                                    headerFields: &headerFields,
+                                    contentType: "application/octet-stream"
+                                )
+                                return .init(
+                                    name: "data",
+                                    filename: wrapped.filename,
+                                    headerFields: headerFields,
+                                    body: body
+                                )
+                            }
+                        }
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.addUploadPart.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.UploadPart.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Completes the [Upload](/docs/api-reference/uploads/object). 
+    ///
+    /// Within the returned Upload object, there is a nested [File](/docs/api-reference/files/object) object that is ready to use in the rest of the platform.
+    ///
+    /// You can specify the order of the Parts by passing in an ordered list of the Part IDs.
+    ///
+    /// The number of bytes uploaded upon completion must match the number of bytes initially specified when creating the Upload object. No Parts may be added after an Upload is completed.
+    ///
+    ///
+    /// - Remark: HTTP `POST /uploads/{upload_id}/complete`.
+    /// - Remark: Generated from `#/paths//uploads/{upload_id}/complete/post(completeUpload)`.
+    public func completeUpload(_ input: Operations.completeUpload.Input) async throws -> Operations.completeUpload.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.completeUpload.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/uploads/{}/complete",
+                    parameters: [
+                        input.path.upload_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.completeUpload.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Upload.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Cancels the Upload. No Parts may be added after an Upload is cancelled.
+    ///
+    ///
+    /// - Remark: HTTP `POST /uploads/{upload_id}/cancel`.
+    /// - Remark: Generated from `#/paths//uploads/{upload_id}/cancel/post(cancelUpload)`.
+    public func cancelUpload(_ input: Operations.cancelUpload.Input) async throws -> Operations.cancelUpload.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.cancelUpload.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/uploads/{}/cancel",
+                    parameters: [
+                        input.path.upload_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.cancelUpload.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Upload.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
     /// List your organization's fine-tuning jobs
     ///
     ///
@@ -1611,7 +1880,7 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Creates a job that fine-tunes a specified model from a given dataset.
+    /// Creates a fine-tuning job which begins the process of creating a new model from a given dataset.
     ///
     /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
     ///
@@ -1890,288 +2159,20 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// List your organization's fine-tuning jobs
+    /// List checkpoints for a fine-tuning job.
     ///
     ///
-    /// - Remark: HTTP `GET /fine-tunes`.
-    /// - Remark: Generated from `#/paths//fine-tunes/get(listFineTunes)`.
-    @available(*, deprecated)
-    public func listFineTunes(_ input: Operations.listFineTunes.Input) async throws -> Operations.listFineTunes.Output {
+    /// - Remark: HTTP `GET /fine_tuning/jobs/{fine_tuning_job_id}/checkpoints`.
+    /// - Remark: Generated from `#/paths//fine_tuning/jobs/{fine_tuning_job_id}/checkpoints/get(listFineTuningJobCheckpoints)`.
+    public func listFineTuningJobCheckpoints(_ input: Operations.listFineTuningJobCheckpoints.Input) async throws -> Operations.listFineTuningJobCheckpoints.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.listFineTunes.id,
+            forOperation: Operations.listFineTuningJobCheckpoints.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/fine-tunes",
-                    parameters: []
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .get
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                return (request, nil)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listFineTunes.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.ListFineTunesResponse.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
-    /// Creates a job that fine-tunes a specified model from a given dataset.
-    ///
-    /// Response includes details of the enqueued job including job status and the name of the fine-tuned models once complete.
-    ///
-    /// [Learn more about fine-tuning](/docs/guides/legacy-fine-tuning)
-    ///
-    ///
-    /// - Remark: HTTP `POST /fine-tunes`.
-    /// - Remark: Generated from `#/paths//fine-tunes/post(createFineTune)`.
-    @available(*, deprecated)
-    public func createFineTune(_ input: Operations.createFineTune.Input) async throws -> Operations.createFineTune.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.createFineTune.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/fine-tunes",
-                    parameters: []
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .post
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                let body: OpenAPIRuntime.HTTPBody?
-                switch input.body {
-                case let .json(value):
-                    body = try converter.setRequiredRequestBodyAsJSON(
-                        value,
-                        headerFields: &request.headerFields,
-                        contentType: "application/json; charset=utf-8"
-                    )
-                }
-                return (request, body)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createFineTune.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.FineTune.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
-    /// Gets info about the fine-tune job.
-    ///
-    /// [Learn more about fine-tuning](/docs/guides/legacy-fine-tuning)
-    ///
-    ///
-    /// - Remark: HTTP `GET /fine-tunes/{fine_tune_id}`.
-    /// - Remark: Generated from `#/paths//fine-tunes/{fine_tune_id}/get(retrieveFineTune)`.
-    @available(*, deprecated)
-    public func retrieveFineTune(_ input: Operations.retrieveFineTune.Input) async throws -> Operations.retrieveFineTune.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.retrieveFineTune.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/fine-tunes/{}",
+                    template: "/fine_tuning/jobs/{}/checkpoints",
                     parameters: [
-                        input.path.fine_tune_id
-                    ]
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .get
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                return (request, nil)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.retrieveFineTune.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.FineTune.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
-    /// Immediately cancel a fine-tune job.
-    ///
-    ///
-    /// - Remark: HTTP `POST /fine-tunes/{fine_tune_id}/cancel`.
-    /// - Remark: Generated from `#/paths//fine-tunes/{fine_tune_id}/cancel/post(cancelFineTune)`.
-    @available(*, deprecated)
-    public func cancelFineTune(_ input: Operations.cancelFineTune.Input) async throws -> Operations.cancelFineTune.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.cancelFineTune.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/fine-tunes/{}/cancel",
-                    parameters: [
-                        input.path.fine_tune_id
-                    ]
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .post
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                return (request, nil)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.cancelFineTune.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.FineTune.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
-    /// Get fine-grained status updates for a fine-tune job.
-    ///
-    ///
-    /// - Remark: HTTP `GET /fine-tunes/{fine_tune_id}/events`.
-    /// - Remark: Generated from `#/paths//fine-tunes/{fine_tune_id}/events/get(listFineTuneEvents)`.
-    @available(*, deprecated)
-    public func listFineTuneEvents(_ input: Operations.listFineTuneEvents.Input) async throws -> Operations.listFineTuneEvents.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.listFineTuneEvents.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/fine-tunes/{}/events",
-                    parameters: [
-                        input.path.fine_tune_id
+                        input.path.fine_tuning_job_id
                     ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
@@ -2183,8 +2184,15 @@ public struct Client: APIProtocol {
                     in: &request,
                     style: .form,
                     explode: true,
-                    name: "stream",
-                    value: input.query.stream
+                    name: "after",
+                    value: input.query.after
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "limit",
+                    value: input.query.limit
                 )
                 converter.setAcceptHeader(
                     in: &request.headerFields,
@@ -2196,7 +2204,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listFineTuneEvents.Output.Ok.Body
+                    let body: Operations.listFineTuningJobCheckpoints.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -2206,7 +2214,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.ListFineTuneEventsResponse.self,
+                            Components.Schemas.ListFineTuningJobCheckpointsResponse.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -2412,7 +2420,7 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Classifies if text violates OpenAI's Content Policy
+    /// Classifies if text is potentially harmful.
     ///
     /// - Remark: HTTP `POST /moderations`.
     /// - Remark: Generated from `#/paths//moderations/post(createModeration)`.
@@ -3147,6 +3155,13 @@ public struct Client: APIProtocol {
                     name: "before",
                     value: input.query.before
                 )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "run_id",
+                    value: input.query.run_id
+                )
                 converter.setAcceptHeader(
                     in: &request.headerFields,
                     contentTypes: input.headers.accept
@@ -3374,6 +3389,69 @@ public struct Client: APIProtocol {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
                             Components.Schemas.MessageObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Deletes a message.
+    ///
+    /// - Remark: HTTP `DELETE /threads/{thread_id}/messages/{message_id}`.
+    /// - Remark: Generated from `#/paths//threads/{thread_id}/messages/{message_id}/delete(deleteMessage)`.
+    public func deleteMessage(_ input: Operations.deleteMessage.Input) async throws -> Operations.deleteMessage.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.deleteMessage.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/threads/{}/messages/{}",
+                    parameters: [
+                        input.path.thread_id,
+                        input.path.message_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .delete
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.deleteMessage.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.DeleteMessageResponse.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -4051,20 +4129,18 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Returns a list of assistant files.
+    /// Returns a list of vector stores.
     ///
-    /// - Remark: HTTP `GET /assistants/{assistant_id}/files`.
-    /// - Remark: Generated from `#/paths//assistants/{assistant_id}/files/get(listAssistantFiles)`.
-    public func listAssistantFiles(_ input: Operations.listAssistantFiles.Input) async throws -> Operations.listAssistantFiles.Output {
+    /// - Remark: HTTP `GET /vector_stores`.
+    /// - Remark: Generated from `#/paths//vector_stores/get(listVectorStores)`.
+    public func listVectorStores(_ input: Operations.listVectorStores.Input) async throws -> Operations.listVectorStores.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.listAssistantFiles.id,
+            forOperation: Operations.listVectorStores.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/assistants/{}/files",
-                    parameters: [
-                        input.path.assistant_id
-                    ]
+                    template: "/vector_stores",
+                    parameters: []
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
                     soar_path: path,
@@ -4109,7 +4185,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listAssistantFiles.Output.Ok.Body
+                    let body: Operations.listVectorStores.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4119,7 +4195,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.ListAssistantFilesResponse.self,
+                            Components.Schemas.ListVectorStoresResponse.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -4141,19 +4217,150 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Create an assistant file by attaching a [File](/docs/api-reference/files) to an [assistant](/docs/api-reference/assistants).
+    /// Create a vector store.
     ///
-    /// - Remark: HTTP `POST /assistants/{assistant_id}/files`.
-    /// - Remark: Generated from `#/paths//assistants/{assistant_id}/files/post(createAssistantFile)`.
-    public func createAssistantFile(_ input: Operations.createAssistantFile.Input) async throws -> Operations.createAssistantFile.Output {
+    /// - Remark: HTTP `POST /vector_stores`.
+    /// - Remark: Generated from `#/paths//vector_stores/post(createVectorStore)`.
+    public func createVectorStore(_ input: Operations.createVectorStore.Input) async throws -> Operations.createVectorStore.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.createAssistantFile.id,
+            forOperation: Operations.createVectorStore.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/assistants/{}/files",
+                    template: "/vector_stores",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.createVectorStore.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Retrieves a vector store.
+    ///
+    /// - Remark: HTTP `GET /vector_stores/{vector_store_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/get(getVectorStore)`.
+    public func getVectorStore(_ input: Operations.getVectorStore.Input) async throws -> Operations.getVectorStore.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.getVectorStore.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}",
                     parameters: [
-                        input.path.assistant_id
+                        input.path.vector_store_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.getVectorStore.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Modifies a vector store.
+    ///
+    /// - Remark: HTTP `POST /vector_stores/{vector_store_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/post(modifyVectorStore)`.
+    public func modifyVectorStore(_ input: Operations.modifyVectorStore.Input) async throws -> Operations.modifyVectorStore.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.modifyVectorStore.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}",
+                    parameters: [
+                        input.path.vector_store_id
                     ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
@@ -4180,7 +4387,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.createAssistantFile.Output.Ok.Body
+                    let body: Operations.modifyVectorStore.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4190,7 +4397,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.AssistantFileObject.self,
+                            Components.Schemas.VectorStoreObject.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -4212,83 +4419,19 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Retrieves an AssistantFile.
+    /// Delete a vector store.
     ///
-    /// - Remark: HTTP `GET /assistants/{assistant_id}/files/{file_id}`.
-    /// - Remark: Generated from `#/paths//assistants/{assistant_id}/files/{file_id}/get(getAssistantFile)`.
-    public func getAssistantFile(_ input: Operations.getAssistantFile.Input) async throws -> Operations.getAssistantFile.Output {
+    /// - Remark: HTTP `DELETE /vector_stores/{vector_store_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/delete(deleteVectorStore)`.
+    public func deleteVectorStore(_ input: Operations.deleteVectorStore.Input) async throws -> Operations.deleteVectorStore.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.getAssistantFile.id,
+            forOperation: Operations.deleteVectorStore.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/assistants/{}/files/{}",
+                    template: "/vector_stores/{}",
                     parameters: [
-                        input.path.assistant_id,
-                        input.path.file_id
-                    ]
-                )
-                var request: HTTPTypes.HTTPRequest = .init(
-                    soar_path: path,
-                    method: .get
-                )
-                suppressMutabilityWarning(&request)
-                converter.setAcceptHeader(
-                    in: &request.headerFields,
-                    contentTypes: input.headers.accept
-                )
-                return (request, nil)
-            },
-            deserializer: { response, responseBody in
-                switch response.status.code {
-                case 200:
-                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.getAssistantFile.Output.Ok.Body
-                    let chosenContentType = try converter.bestContentType(
-                        received: contentType,
-                        options: [
-                            "application/json"
-                        ]
-                    )
-                    switch chosenContentType {
-                    case "application/json":
-                        body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.AssistantFileObject.self,
-                            from: responseBody,
-                            transforming: { value in
-                                .json(value)
-                            }
-                        )
-                    default:
-                        preconditionFailure("bestContentType chose an invalid content type.")
-                    }
-                    return .ok(.init(body: body))
-                default:
-                    return .undocumented(
-                        statusCode: response.status.code,
-                        .init(
-                            headerFields: response.headerFields,
-                            body: responseBody
-                        )
-                    )
-                }
-            }
-        )
-    }
-    /// Delete an assistant file.
-    ///
-    /// - Remark: HTTP `DELETE /assistants/{assistant_id}/files/{file_id}`.
-    /// - Remark: Generated from `#/paths//assistants/{assistant_id}/files/{file_id}/delete(deleteAssistantFile)`.
-    public func deleteAssistantFile(_ input: Operations.deleteAssistantFile.Input) async throws -> Operations.deleteAssistantFile.Output {
-        try await client.send(
-            input: input,
-            forOperation: Operations.deleteAssistantFile.id,
-            serializer: { input in
-                let path = try converter.renderedPath(
-                    template: "/assistants/{}/files/{}",
-                    parameters: [
-                        input.path.assistant_id,
-                        input.path.file_id
+                        input.path.vector_store_id
                     ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
@@ -4306,7 +4449,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.deleteAssistantFile.Output.Ok.Body
+                    let body: Operations.deleteVectorStore.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4316,7 +4459,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.DeleteAssistantFileResponse.self,
+                            Components.Schemas.DeleteVectorStoreResponse.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -4338,20 +4481,19 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Returns a list of message files.
+    /// Returns a list of vector store files.
     ///
-    /// - Remark: HTTP `GET /threads/{thread_id}/messages/{message_id}/files`.
-    /// - Remark: Generated from `#/paths//threads/{thread_id}/messages/{message_id}/files/get(listMessageFiles)`.
-    public func listMessageFiles(_ input: Operations.listMessageFiles.Input) async throws -> Operations.listMessageFiles.Output {
+    /// - Remark: HTTP `GET /vector_stores/{vector_store_id}/files`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/files/get(listVectorStoreFiles)`.
+    public func listVectorStoreFiles(_ input: Operations.listVectorStoreFiles.Input) async throws -> Operations.listVectorStoreFiles.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.listMessageFiles.id,
+            forOperation: Operations.listVectorStoreFiles.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/threads/{}/messages/{}/files",
+                    template: "/vector_stores/{}/files",
                     parameters: [
-                        input.path.thread_id,
-                        input.path.message_id
+                        input.path.vector_store_id
                     ]
                 )
                 var request: HTTPTypes.HTTPRequest = .init(
@@ -4387,6 +4529,13 @@ public struct Client: APIProtocol {
                     name: "before",
                     value: input.query.before
                 )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "filter",
+                    value: input.query.filter
+                )
                 converter.setAcceptHeader(
                     in: &request.headerFields,
                     contentTypes: input.headers.accept
@@ -4397,7 +4546,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.listMessageFiles.Output.Ok.Body
+                    let body: Operations.listVectorStoreFiles.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4407,7 +4556,7 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.ListMessageFilesResponse.self,
+                            Components.Schemas.ListVectorStoreFilesResponse.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
@@ -4429,20 +4578,90 @@ public struct Client: APIProtocol {
             }
         )
     }
-    /// Retrieves a message file.
+    /// Create a vector store file by attaching a [File](/docs/api-reference/files) to a [vector store](/docs/api-reference/vector-stores/object).
     ///
-    /// - Remark: HTTP `GET /threads/{thread_id}/messages/{message_id}/files/{file_id}`.
-    /// - Remark: Generated from `#/paths//threads/{thread_id}/messages/{message_id}/files/{file_id}/get(getMessageFile)`.
-    public func getMessageFile(_ input: Operations.getMessageFile.Input) async throws -> Operations.getMessageFile.Output {
+    /// - Remark: HTTP `POST /vector_stores/{vector_store_id}/files`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/files/post(createVectorStoreFile)`.
+    public func createVectorStoreFile(_ input: Operations.createVectorStoreFile.Input) async throws -> Operations.createVectorStoreFile.Output {
         try await client.send(
             input: input,
-            forOperation: Operations.getMessageFile.id,
+            forOperation: Operations.createVectorStoreFile.id,
             serializer: { input in
                 let path = try converter.renderedPath(
-                    template: "/threads/{}/messages/{}/files/{}",
+                    template: "/vector_stores/{}/files",
                     parameters: [
-                        input.path.thread_id,
-                        input.path.message_id,
+                        input.path.vector_store_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.createVectorStoreFile.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreFileObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Retrieves a vector store file.
+    ///
+    /// - Remark: HTTP `GET /vector_stores/{vector_store_id}/files/{file_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/files/{file_id}/get(getVectorStoreFile)`.
+    public func getVectorStoreFile(_ input: Operations.getVectorStoreFile.Input) async throws -> Operations.getVectorStoreFile.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.getVectorStoreFile.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/files/{}",
+                    parameters: [
+                        input.path.vector_store_id,
                         input.path.file_id
                     ]
                 )
@@ -4461,7 +4680,7 @@ public struct Client: APIProtocol {
                 switch response.status.code {
                 case 200:
                     let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
-                    let body: Operations.getMessageFile.Output.Ok.Body
+                    let body: Operations.getVectorStoreFile.Output.Ok.Body
                     let chosenContentType = try converter.bestContentType(
                         received: contentType,
                         options: [
@@ -4471,7 +4690,632 @@ public struct Client: APIProtocol {
                     switch chosenContentType {
                     case "application/json":
                         body = try await converter.getResponseBodyAsJSON(
-                            Components.Schemas.MessageFileObject.self,
+                            Components.Schemas.VectorStoreFileObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Delete a vector store file. This will remove the file from the vector store but the file itself will not be deleted. To delete the file, use the [delete file](/docs/api-reference/files/delete) endpoint.
+    ///
+    /// - Remark: HTTP `DELETE /vector_stores/{vector_store_id}/files/{file_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/files/{file_id}/delete(deleteVectorStoreFile)`.
+    public func deleteVectorStoreFile(_ input: Operations.deleteVectorStoreFile.Input) async throws -> Operations.deleteVectorStoreFile.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.deleteVectorStoreFile.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/files/{}",
+                    parameters: [
+                        input.path.vector_store_id,
+                        input.path.file_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .delete
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.deleteVectorStoreFile.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.DeleteVectorStoreFileResponse.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Create a vector store file batch.
+    ///
+    /// - Remark: HTTP `POST /vector_stores/{vector_store_id}/file_batches`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/file_batches/post(createVectorStoreFileBatch)`.
+    public func createVectorStoreFileBatch(_ input: Operations.createVectorStoreFileBatch.Input) async throws -> Operations.createVectorStoreFileBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.createVectorStoreFileBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/file_batches",
+                    parameters: [
+                        input.path.vector_store_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.createVectorStoreFileBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreFileBatchObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Retrieves a vector store file batch.
+    ///
+    /// - Remark: HTTP `GET /vector_stores/{vector_store_id}/file_batches/{batch_id}`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/file_batches/{batch_id}/get(getVectorStoreFileBatch)`.
+    public func getVectorStoreFileBatch(_ input: Operations.getVectorStoreFileBatch.Input) async throws -> Operations.getVectorStoreFileBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.getVectorStoreFileBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/file_batches/{}",
+                    parameters: [
+                        input.path.vector_store_id,
+                        input.path.batch_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.getVectorStoreFileBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreFileBatchObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Cancel a vector store file batch. This attempts to cancel the processing of files in this batch as soon as possible.
+    ///
+    /// - Remark: HTTP `POST /vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/file_batches/{batch_id}/cancel/post(cancelVectorStoreFileBatch)`.
+    public func cancelVectorStoreFileBatch(_ input: Operations.cancelVectorStoreFileBatch.Input) async throws -> Operations.cancelVectorStoreFileBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.cancelVectorStoreFileBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/file_batches/{}/cancel",
+                    parameters: [
+                        input.path.vector_store_id,
+                        input.path.batch_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.cancelVectorStoreFileBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.VectorStoreFileBatchObject.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Returns a list of vector store files in a batch.
+    ///
+    /// - Remark: HTTP `GET /vector_stores/{vector_store_id}/file_batches/{batch_id}/files`.
+    /// - Remark: Generated from `#/paths//vector_stores/{vector_store_id}/file_batches/{batch_id}/files/get(listFilesInVectorStoreBatch)`.
+    public func listFilesInVectorStoreBatch(_ input: Operations.listFilesInVectorStoreBatch.Input) async throws -> Operations.listFilesInVectorStoreBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.listFilesInVectorStoreBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/vector_stores/{}/file_batches/{}/files",
+                    parameters: [
+                        input.path.vector_store_id,
+                        input.path.batch_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "limit",
+                    value: input.query.limit
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "order",
+                    value: input.query.order
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "after",
+                    value: input.query.after
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "before",
+                    value: input.query.before
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "filter",
+                    value: input.query.filter
+                )
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.listFilesInVectorStoreBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.ListVectorStoreFilesResponse.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// List your organization's batches.
+    ///
+    /// - Remark: HTTP `GET /batches`.
+    /// - Remark: Generated from `#/paths//batches/get(listBatches)`.
+    public func listBatches(_ input: Operations.listBatches.Input) async throws -> Operations.listBatches.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.listBatches.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/batches",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "after",
+                    value: input.query.after
+                )
+                try converter.setQueryItemAsURI(
+                    in: &request,
+                    style: .form,
+                    explode: true,
+                    name: "limit",
+                    value: input.query.limit
+                )
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.listBatches.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.ListBatchesResponse.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Creates and executes a batch from an uploaded file of requests
+    ///
+    /// - Remark: HTTP `POST /batches`.
+    /// - Remark: Generated from `#/paths//batches/post(createBatch)`.
+    public func createBatch(_ input: Operations.createBatch.Input) async throws -> Operations.createBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.createBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/batches",
+                    parameters: []
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                let body: OpenAPIRuntime.HTTPBody?
+                switch input.body {
+                case let .json(value):
+                    body = try converter.setRequiredRequestBodyAsJSON(
+                        value,
+                        headerFields: &request.headerFields,
+                        contentType: "application/json; charset=utf-8"
+                    )
+                }
+                return (request, body)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.createBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Batch.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Retrieves a batch.
+    ///
+    /// - Remark: HTTP `GET /batches/{batch_id}`.
+    /// - Remark: Generated from `#/paths//batches/{batch_id}/get(retrieveBatch)`.
+    public func retrieveBatch(_ input: Operations.retrieveBatch.Input) async throws -> Operations.retrieveBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.retrieveBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/batches/{}",
+                    parameters: [
+                        input.path.batch_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .get
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.retrieveBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Batch.self,
+                            from: responseBody,
+                            transforming: { value in
+                                .json(value)
+                            }
+                        )
+                    default:
+                        preconditionFailure("bestContentType chose an invalid content type.")
+                    }
+                    return .ok(.init(body: body))
+                default:
+                    return .undocumented(
+                        statusCode: response.status.code,
+                        .init(
+                            headerFields: response.headerFields,
+                            body: responseBody
+                        )
+                    )
+                }
+            }
+        )
+    }
+    /// Cancels an in-progress batch. The batch will be in status `cancelling` for up to 10 minutes, before changing to `cancelled`, where it will have partial results (if any) available in the output file.
+    ///
+    /// - Remark: HTTP `POST /batches/{batch_id}/cancel`.
+    /// - Remark: Generated from `#/paths//batches/{batch_id}/cancel/post(cancelBatch)`.
+    public func cancelBatch(_ input: Operations.cancelBatch.Input) async throws -> Operations.cancelBatch.Output {
+        try await client.send(
+            input: input,
+            forOperation: Operations.cancelBatch.id,
+            serializer: { input in
+                let path = try converter.renderedPath(
+                    template: "/batches/{}/cancel",
+                    parameters: [
+                        input.path.batch_id
+                    ]
+                )
+                var request: HTTPTypes.HTTPRequest = .init(
+                    soar_path: path,
+                    method: .post
+                )
+                suppressMutabilityWarning(&request)
+                converter.setAcceptHeader(
+                    in: &request.headerFields,
+                    contentTypes: input.headers.accept
+                )
+                return (request, nil)
+            },
+            deserializer: { response, responseBody in
+                switch response.status.code {
+                case 200:
+                    let contentType = converter.extractContentTypeIfPresent(in: response.headerFields)
+                    let body: Operations.cancelBatch.Output.Ok.Body
+                    let chosenContentType = try converter.bestContentType(
+                        received: contentType,
+                        options: [
+                            "application/json"
+                        ]
+                    )
+                    switch chosenContentType {
+                    case "application/json":
+                        body = try await converter.getResponseBodyAsJSON(
+                            Components.Schemas.Batch.self,
                             from: responseBody,
                             transforming: { value in
                                 .json(value)
