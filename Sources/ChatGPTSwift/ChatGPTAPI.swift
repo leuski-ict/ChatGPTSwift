@@ -64,13 +64,16 @@ public class ChatGPTAPI: @unchecked Sendable {
         .init(role: "system", content: content)
     }
     
-    public init(apiKey: String) {
+    public init(apiKey: String, timeout: TimeInterval = 60) {
         self.apiKey = apiKey
         let clientTransport: ClientTransport
         #if os(Linux)
         clientTransport = AsyncHTTPClientTransport()
         #else
-        clientTransport = URLSessionTransport()
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = timeout
+        let session = URLSession(configuration: configuration)
+        clientTransport = URLSessionTransport(configuration: .init(session: session))
         #endif
         self.client = Client(serverURL: URL(string: self.urlString)!,
             transport: clientTransport,
