@@ -40,6 +40,22 @@ public enum ChatGPTModel: Codable, Sendable, Hashable, CustomStringConvertible {
         .init(value1: value, value2: nil)
     }
   }
+
+  public init(string: String) {
+    if let payload = SystemPayload(rawValue: string) {
+      self = .system(payload)
+    } else {
+      self = .user(string)
+    }
+  }
+
+  public init(from decoder: any Decoder) throws {
+    self.init(string: try String(from: decoder))
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    try description.encode(to: encoder)
+  }
 }
 
 public class ChatGPTAPI: @unchecked Sendable {
