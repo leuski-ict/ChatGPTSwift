@@ -185,6 +185,59 @@ public class ChatGPTAPI: @unchecked Sendable {
         }
     }
 
+    public func sendMessageStream(
+      messages: [Components.Schemas.ChatCompletionRequestMessage],
+      model: ChatGPTModel = .system(.gpt_hyphen_4o),
+      temperature: Double? = nil,
+      topP: Double? = nil,
+      maxTokens: Int? = nil,
+      responseFormat: Components.Schemas.CreateChatCompletionRequest.response_formatPayload? = nil,
+      stop: Components.Schemas.CreateChatCompletionRequest.stopPayload? = nil) async throws -> AsyncMapSequence<AsyncThrowingPrefixWhileSequence<AsyncThrowingMapSequence<ServerSentEventsDeserializationSequence<ServerSentEventsLineDeserializationSequence<HTTPBody>>, ServerSentEventWithJSONData<Components.Schemas.CreateChatCompletionStreamResponse>>>, String>
+    {
+      let response = try await client.createChatCompletion(
+        .init(
+          headers: .init(
+            accept: [.init(contentType: .text_event_hyphen_stream)]),
+          body: .json(.init(
+            messages: messages,
+            model: model.payload,
+            max_tokens: maxTokens,
+            response_format: responseFormat,
+            stop: stop,
+            stream: true,
+            temperature: temperature,
+            top_p: topP
+          ))))
+
+      do {
+        let stream = try response.ok.body.text_event_hyphen_stream.asDecodedServerSentEventsWithJSONData(
+          of: Components.Schemas.CreateChatCompletionStreamResponse.self
+        )
+          .prefix { chunk in
+            if let choice = chunk.data?.choices.first {
+              return choice.finish_reason != .stop
+            } else {
+              throw "Invalid data"
+            }
+          }
+          .map{ $0.data?.choices.first?.delta.content ?? "" }
+        return stream
+      } catch {
+        let statusCode: Int
+        let errorDesc = (error as CustomStringConvertible).description
+        if errorDesc.contains("statusCode: 401") {
+          statusCode = 401
+        } else if errorDesc.contains("statusCode: 403") {
+          statusCode = 403
+        } else if errorDesc.contains("statusCode: 429") {
+          statusCode = 429
+        } else {
+          statusCode = 500
+        }
+        throw getError(statusCode: statusCode, model: model.description, payload: nil)
+      }
+    }
+
     public func sendMessage(text: String,
                             model: ChatGPTModel = .system(.gpt_hyphen_4o),
                             systemText: String = ChatGPTAPI.Constants.defaultSystemText,
@@ -221,7 +274,39 @@ public class ChatGPTAPI: @unchecked Sendable {
             throw getError(statusCode: statusCode, model: model.description, payload: payload)
         }
     }
-    
+
+    public func sendMessage(
+      messages: [Components.Schemas.ChatCompletionRequestMessage],
+      model: ChatGPTModel = .system(.gpt_hyphen_4o),
+      systemText: String = ChatGPTAPI.Constants.defaultSystemText,
+      temperature: Double? = nil,
+      topP: Double? = nil,
+      maxTokens: Int? = nil,
+      responseFormat: Components.Schemas.CreateChatCompletionRequest.response_formatPayload? = nil,
+      stop: Components.Schemas.CreateChatCompletionRequest.stopPayload? = nil) async throws -> String 
+    {
+      let response = try await client.createChatCompletion(body: .json(.init(
+        messages: messages,
+        model: model.payload,
+        max_tokens: maxTokens,
+        response_format: responseFormat,
+        stop: stop,
+        temperature: temperature,
+        top_p: topP
+      )))
+
+      switch response {
+      case .ok(let body):
+        let json = try body.body.json
+        guard let content = json.choices.first?.message.content else {
+          throw "No Response"
+        }
+        return content
+      case .undocumented(let statusCode, let payload):
+        throw getError(statusCode: statusCode, model: model.description, payload: payload)
+      }
+    }
+
     public func callFunction(prompt: String,
                               tools: [ChatCompletionTool],
                               model: Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload = .gpt_hyphen_4,
