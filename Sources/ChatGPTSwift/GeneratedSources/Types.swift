@@ -1361,6 +1361,15 @@ extension APIProtocol {
 
 /// Server URLs defined in the OpenAPI document.
 public enum Servers {
+    public enum Server1 {
+        public static func url() throws -> Foundation.URL {
+            try Foundation.URL(
+                validatingOpenAPIServerURL: "https://api.openai.com/v1",
+                variables: []
+            )
+        }
+    }
+    @available(*, deprecated, renamed: "Servers.Server1.url")
     public static func server1() throws -> Foundation.URL {
         try Foundation.URL(
             validatingOpenAPIServerURL: "https://api.openai.com/v1",
@@ -1426,7 +1435,7 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/ListModelsResponse`.
         public struct ListModelsResponse: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/ListModelsResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListModelsResponse/object`.
@@ -1489,7 +1498,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateCompletionRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateCompletionRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case gpt_hyphen_3_period_5_hyphen_turbo_hyphen_instruct = "gpt-3.5-turbo-instruct"
                     case davinci_hyphen_002 = "davinci-002"
                     case babbage_hyphen_002 = "babbage-002"
@@ -1511,19 +1520,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -1532,8 +1541,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -1873,7 +1882,7 @@ public enum Components {
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateCompletionResponse/choicesPayload/finish_reason`.
-                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case stop = "stop"
                     case length = "length"
                     case content_filter = "content_filter"
@@ -1997,7 +2006,7 @@ public enum Components {
             /// The object type, which is always "text_completion"
             ///
             /// - Remark: Generated from `#/components/schemas/CreateCompletionResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text_completion = "text_completion"
             }
             /// The object type, which is always "text_completion"
@@ -2083,7 +2092,7 @@ public enum Components {
             /// The type of the content part.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestMessageContentPartImage/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image_url = "image_url"
             }
             /// The type of the content part.
@@ -2099,7 +2108,7 @@ public enum Components {
                 /// Specifies the detail level of the image. Learn more in the [Vision guide](/docs/guides/vision/low-or-high-fidelity-image-understanding).
                 ///
                 /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestMessageContentPartImage/image_url/detail`.
-                @frozen public enum detailPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum detailPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case auto = "auto"
                     case low = "low"
                     case high = "high"
@@ -2149,7 +2158,7 @@ public enum Components {
             /// The type of the content part.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestMessageContentPartText/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text = "text"
             }
             /// The type of the content part.
@@ -2251,7 +2260,7 @@ public enum Components {
             /// The role of the messages author, in this case `system`.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestSystemMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case system = "system"
             }
             /// The role of the messages author, in this case `system`.
@@ -2335,7 +2344,7 @@ public enum Components {
             /// The role of the messages author, in this case `user`.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestUserMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case user = "user"
             }
             /// The role of the messages author, in this case `user`.
@@ -2377,7 +2386,7 @@ public enum Components {
             /// The role of the messages author, in this case `assistant`.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestAssistantMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistant = "assistant"
             }
             /// The role of the messages author, in this case `assistant`.
@@ -2461,7 +2470,7 @@ public enum Components {
                 /// Controls whether the assistant message is trained against (0 or 1)
                 ///
                 /// - Remark: Generated from `#/components/schemas/FineTuneChatCompletionRequestAssistantMessage/value1/weight`.
-                @frozen public enum weightPayload: Int, Codable, Hashable, Sendable {
+                @frozen public enum weightPayload: Int, Codable, Hashable, Sendable, CaseIterable {
                     case _0 = 0
                     case _1 = 1
                 }
@@ -2497,12 +2506,12 @@ public enum Components {
                 self.value2 = value2
             }
             public init(from decoder: any Decoder) throws {
-                value1 = try .init(from: decoder)
-                value2 = try .init(from: decoder)
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
             }
             public func encode(to encoder: any Encoder) throws {
-                try value1.encode(to: encoder)
-                try value2.encode(to: encoder)
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
             }
         }
         /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestToolMessage`.
@@ -2510,7 +2519,7 @@ public enum Components {
             /// The role of the messages author, in this case `tool`.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestToolMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case tool = "tool"
             }
             /// The role of the messages author, in this case `tool`.
@@ -2552,7 +2561,7 @@ public enum Components {
             /// The role of the messages author, in this case `function`.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionRequestFunctionMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The role of the messages author, in this case `function`.
@@ -2669,7 +2678,7 @@ public enum Components {
             /// The type of the tool. Currently, only `function` is supported.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionTool/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of the tool. Currently, only `function` is supported.
@@ -2743,7 +2752,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionToolChoiceOption/case1`.
-            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                 case none = "none"
                 case auto = "auto"
                 case required = "required"
@@ -2791,7 +2800,7 @@ public enum Components {
             /// The type of the tool. Currently, only `function` is supported.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionNamedToolChoice/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of the tool. Currently, only `function` is supported.
@@ -2851,7 +2860,7 @@ public enum Components {
             /// The type of the tool. Currently, only `function` is supported.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionMessageToolCall/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of the tool. Currently, only `function` is supported.
@@ -2923,7 +2932,7 @@ public enum Components {
             /// The type of the tool. Currently, only `function` is supported.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionMessageToolCallChunk/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of the tool. Currently, only `function` is supported.
@@ -2987,7 +2996,7 @@ public enum Components {
         /// The role of the author of a message
         ///
         /// - Remark: Generated from `#/components/schemas/ChatCompletionRole`.
-        @frozen public enum ChatCompletionRole: String, Codable, Hashable, Sendable {
+        @frozen public enum ChatCompletionRole: String, Codable, Hashable, Sendable, CaseIterable {
             case system = "system"
             case user = "user"
             case assistant = "assistant"
@@ -3028,7 +3037,7 @@ public enum Components {
             /// The role of the author of this message.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionResponseMessage/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistant = "assistant"
             }
             /// The role of the author of this message.
@@ -3143,7 +3152,7 @@ public enum Components {
             /// The role of the author of this message.
             ///
             /// - Remark: Generated from `#/components/schemas/ChatCompletionStreamResponseDelta/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case system = "system"
                 case user = "user"
                 case assistant = "assistant"
@@ -3191,7 +3200,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case gpt_hyphen_4o = "gpt-4o"
                     case gpt_hyphen_4o_hyphen_2024_hyphen_05_hyphen_13 = "gpt-4o-2024-05-13"
                     case gpt_hyphen_4o_hyphen_mini = "gpt-4o-mini"
@@ -3233,19 +3242,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -3254,8 +3263,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -3338,7 +3347,7 @@ public enum Components {
                 /// Must be one of `text` or `json_object`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionRequest/response_format/type`.
-                @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case text = "text"
                     case json_object = "json_object"
                 }
@@ -3382,7 +3391,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionRequest/service_tier`.
-            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case auto = "auto"
                 case _default = "default"
             }
@@ -3490,7 +3499,7 @@ public enum Components {
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionRequest/function_call/case1`.
-                @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case none = "none"
                     case auto = "auto"
                 }
@@ -3669,7 +3678,7 @@ public enum Components {
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionResponse/choicesPayload/finish_reason`.
-                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case stop = "stop"
                     case length = "length"
                     case tool_calls = "tool_calls"
@@ -3757,7 +3766,7 @@ public enum Components {
             /// The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionResponse/service_tier`.
-            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case scale = "scale"
                 case _default = "default"
             }
@@ -3775,7 +3784,7 @@ public enum Components {
             /// The object type, which is always `chat.completion`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case chat_period_completion = "chat.completion"
             }
             /// The object type, which is always `chat.completion`.
@@ -3839,7 +3848,7 @@ public enum Components {
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionFunctionResponse/choicesPayload/finish_reason`.
-                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case stop = "stop"
                     case length = "length"
                     case function_call = "function_call"
@@ -3903,7 +3912,7 @@ public enum Components {
             /// The object type, which is always `chat.completion`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionFunctionResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case chat_period_completion = "chat.completion"
             }
             /// The object type, which is always `chat.completion`.
@@ -4038,7 +4047,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ListPaginatedFineTuningJobsResponse/has_more`.
             public var has_more: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/ListPaginatedFineTuningJobsResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListPaginatedFineTuningJobsResponse/object`.
@@ -4106,7 +4115,7 @@ public enum Components {
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateChatCompletionStreamResponse/choicesPayload/finish_reason`.
-                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum finish_reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case stop = "stop"
                     case length = "length"
                     case tool_calls = "tool_calls"
@@ -4173,7 +4182,7 @@ public enum Components {
             /// The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionStreamResponse/service_tier`.
-            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum service_tierPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case scale = "scale"
                 case _default = "default"
             }
@@ -4190,7 +4199,7 @@ public enum Components {
             /// The object type, which is always `chat.completion.chunk`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateChatCompletionStreamResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case chat_period_completion_period_chunk = "chat.completion.chunk"
             }
             /// The object type, which is always `chat.completion.chunk`.
@@ -4300,7 +4309,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateImageRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateImageRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case dall_hyphen_e_hyphen_2 = "dall-e-2"
                     case dall_hyphen_e_hyphen_3 = "dall-e-3"
                 }
@@ -4321,19 +4330,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -4342,8 +4351,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -4358,7 +4367,7 @@ public enum Components {
             /// The quality of the image that will be generated. `hd` creates images with finer details and greater consistency across the image. This param is only supported for `dall-e-3`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateImageRequest/quality`.
-            @frozen public enum qualityPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum qualityPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case standard = "standard"
                 case hd = "hd"
             }
@@ -4369,7 +4378,7 @@ public enum Components {
             /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateImageRequest/response_format`.
-            @frozen public enum response_formatPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum response_formatPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case url = "url"
                 case b64_json = "b64_json"
             }
@@ -4380,7 +4389,7 @@ public enum Components {
             /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024` for `dall-e-2`. Must be one of `1024x1024`, `1792x1024`, or `1024x1792` for `dall-e-3` models.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateImageRequest/size`.
-            @frozen public enum sizePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum sizePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case _256x256 = "256x256"
                 case _512x512 = "512x512"
                 case _1024x1024 = "1024x1024"
@@ -4394,7 +4403,7 @@ public enum Components {
             /// The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for `dall-e-3`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateImageRequest/style`.
-            @frozen public enum stylePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum stylePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vivid = "vivid"
                 case natural = "natural"
             }
@@ -4737,7 +4746,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateModerationRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateModerationRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case text_hyphen_moderation_hyphen_latest = "text-moderation-latest"
                     case text_hyphen_moderation_hyphen_stable = "text-moderation-stable"
                 }
@@ -4758,19 +4767,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -4779,8 +4788,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -5091,7 +5100,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ListFilesResponse/data`.
             public var data: [Components.Schemas.OpenAIFile]
             /// - Remark: Generated from `#/components/schemas/ListFilesResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListFilesResponse/object`.
@@ -5145,7 +5154,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/id`.
             public var id: Swift.String
             /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file = "file"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/object`.
@@ -5186,7 +5195,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/CreateUploadRequest/purpose`.
-            @frozen public enum purposePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum purposePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistants = "assistants"
                 case batch = "batch"
                 case fine_hyphen_tune = "fine-tune"
@@ -5237,19 +5246,19 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                filename = try container.decode(
+                self.filename = try container.decode(
                     Swift.String.self,
                     forKey: .filename
                 )
-                purpose = try container.decode(
+                self.purpose = try container.decode(
                     Components.Schemas.CreateUploadRequest.purposePayload.self,
                     forKey: .purpose
                 )
-                bytes = try container.decode(
+                self.bytes = try container.decode(
                     Swift.Int.self,
                     forKey: .bytes
                 )
-                mime_type = try container.decode(
+                self.mime_type = try container.decode(
                     Swift.String.self,
                     forKey: .mime_type
                 )
@@ -5306,11 +5315,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                part_ids = try container.decode(
+                self.part_ids = try container.decode(
                     [Swift.String].self,
                     forKey: .part_ids
                 )
-                md5 = try container.decodeIfPresent(
+                self.md5 = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .md5
                 )
@@ -5339,10 +5348,11 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case babbage_hyphen_002 = "babbage-002"
                     case davinci_hyphen_002 = "davinci-002"
                     case gpt_hyphen_3_period_5_hyphen_turbo = "gpt-3.5-turbo"
+                    case gpt_hyphen_4o_hyphen_mini = "gpt-4o-mini"
                 }
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/model/value2`.
                 public var value2: Components.Schemas.CreateFineTuningJobRequest.modelPayload.Value2Payload?
@@ -5361,19 +5371,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -5382,8 +5392,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -5417,7 +5427,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/batch_size`.
                 @frozen public enum batch_sizePayload: Codable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/batch_size/case1`.
-                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                         case auto = "auto"
                     }
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/batch_size/case1`.
@@ -5466,7 +5476,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/learning_rate_multiplier`.
                 @frozen public enum learning_rate_multiplierPayload: Codable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/learning_rate_multiplier/case1`.
-                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                         case auto = "auto"
                     }
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/learning_rate_multiplier/case1`.
@@ -5515,7 +5525,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/n_epochs`.
                 @frozen public enum n_epochsPayload: Codable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/n_epochs/case1`.
-                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                         case auto = "auto"
                     }
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/hyperparameters/n_epochs/case1`.
@@ -5611,7 +5621,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/integrationsPayload/type`.
                 @frozen public enum _typePayload: Codable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/integrationsPayload/type/case1`.
-                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                         case wandb = "wandb"
                     }
                     /// - Remark: Generated from `#/components/schemas/CreateFineTuningJobRequest/integrationsPayload/type/case1`.
@@ -5776,7 +5786,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobEventsResponse/data`.
             public var data: [Components.Schemas.FineTuningJobEvent]
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobEventsResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobEventsResponse/object`.
@@ -5803,7 +5813,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobCheckpointsResponse/data`.
             public var data: [Components.Schemas.FineTuningJobCheckpoint]
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobCheckpointsResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListFineTuningJobCheckpointsResponse/object`.
@@ -5924,7 +5934,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateEmbeddingRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateEmbeddingRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case text_hyphen_embedding_hyphen_ada_hyphen_002 = "text-embedding-ada-002"
                     case text_hyphen_embedding_hyphen_3_hyphen_small = "text-embedding-3-small"
                     case text_hyphen_embedding_hyphen_3_hyphen_large = "text-embedding-3-large"
@@ -5946,19 +5956,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -5967,8 +5977,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -5980,7 +5990,7 @@ public enum Components {
             /// The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/).
             ///
             /// - Remark: Generated from `#/components/schemas/CreateEmbeddingRequest/encoding_format`.
-            @frozen public enum encoding_formatPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum encoding_formatPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case float = "float"
                 case base64 = "base64"
             }
@@ -6028,23 +6038,23 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                input = try container.decode(
+                self.input = try container.decode(
                     Components.Schemas.CreateEmbeddingRequest.inputPayload.self,
                     forKey: .input
                 )
-                model = try container.decode(
+                self.model = try container.decode(
                     Components.Schemas.CreateEmbeddingRequest.modelPayload.self,
                     forKey: .model
                 )
-                encoding_format = try container.decodeIfPresent(
+                self.encoding_format = try container.decodeIfPresent(
                     Components.Schemas.CreateEmbeddingRequest.encoding_formatPayload.self,
                     forKey: .encoding_format
                 )
-                dimensions = try container.decodeIfPresent(
+                self.dimensions = try container.decodeIfPresent(
                     Swift.Int.self,
                     forKey: .dimensions
                 )
-                user = try container.decodeIfPresent(
+                self.user = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .user
                 )
@@ -6070,7 +6080,7 @@ public enum Components {
             /// The object type, which is always "list".
             ///
             /// - Remark: Generated from `#/components/schemas/CreateEmbeddingResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// The object type, which is always "list".
@@ -6551,7 +6561,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateSpeechRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateSpeechRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case tts_hyphen_1 = "tts-1"
                     case tts_hyphen_1_hyphen_hd = "tts-1-hd"
                 }
@@ -6572,19 +6582,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -6593,8 +6603,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -6610,7 +6620,7 @@ public enum Components {
             /// The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](/docs/guides/text-to-speech/voice-options).
             ///
             /// - Remark: Generated from `#/components/schemas/CreateSpeechRequest/voice`.
-            @frozen public enum voicePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum voicePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case alloy = "alloy"
                 case echo = "echo"
                 case fable = "fable"
@@ -6625,7 +6635,7 @@ public enum Components {
             /// The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`.
             ///
             /// - Remark: Generated from `#/components/schemas/CreateSpeechRequest/response_format`.
-            @frozen public enum response_formatPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum response_formatPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case mp3 = "mp3"
                 case opus = "opus"
                 case aac = "aac"
@@ -6671,23 +6681,23 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                model = try container.decode(
+                self.model = try container.decode(
                     Components.Schemas.CreateSpeechRequest.modelPayload.self,
                     forKey: .model
                 )
-                input = try container.decode(
+                self.input = try container.decode(
                     Swift.String.self,
                     forKey: .input
                 )
-                voice = try container.decode(
+                self.voice = try container.decode(
                     Components.Schemas.CreateSpeechRequest.voicePayload.self,
                     forKey: .voice
                 )
-                response_format = try container.decodeIfPresent(
+                self.response_format = try container.decodeIfPresent(
                     Components.Schemas.CreateSpeechRequest.response_formatPayload.self,
                     forKey: .response_format
                 )
-                speed = try container.decodeIfPresent(
+                self.speed = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .speed
                 )
@@ -6715,7 +6725,7 @@ public enum Components {
             /// The object type, which is always "model".
             ///
             /// - Remark: Generated from `#/components/schemas/Model/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case model = "model"
             }
             /// The object type, which is always "model".
@@ -6774,7 +6784,7 @@ public enum Components {
             /// The object type, which is always `file`.
             ///
             /// - Remark: Generated from `#/components/schemas/OpenAIFile/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file = "file"
             }
             /// The object type, which is always `file`.
@@ -6784,7 +6794,7 @@ public enum Components {
             /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
             ///
             /// - Remark: Generated from `#/components/schemas/OpenAIFile/purpose`.
-            @frozen public enum purposePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum purposePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistants = "assistants"
                 case assistants_output = "assistants_output"
                 case batch = "batch"
@@ -6800,7 +6810,7 @@ public enum Components {
             /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
             ///
             /// - Remark: Generated from `#/components/schemas/OpenAIFile/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case uploaded = "uploaded"
                 case processed = "processed"
                 case error = "error"
@@ -6884,7 +6894,7 @@ public enum Components {
             /// The status of the Upload.
             ///
             /// - Remark: Generated from `#/components/schemas/Upload/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case pending = "pending"
                 case completed = "completed"
                 case cancelled = "cancelled"
@@ -6901,7 +6911,7 @@ public enum Components {
             /// The object type, which is always "upload".
             ///
             /// - Remark: Generated from `#/components/schemas/Upload/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case upload = "upload"
             }
             /// The object type, which is always "upload".
@@ -6975,7 +6985,7 @@ public enum Components {
             /// The object type, which is always `upload.part`.
             ///
             /// - Remark: Generated from `#/components/schemas/UploadPart/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case upload_period_part = "upload.part"
             }
             /// The object type, which is always `upload.part`.
@@ -7024,7 +7034,7 @@ public enum Components {
             /// The object type, which is always "embedding".
             ///
             /// - Remark: Generated from `#/components/schemas/Embedding/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case embedding = "embedding"
             }
             /// The object type, which is always "embedding".
@@ -7124,7 +7134,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/FineTuningJob/hyperparameters/n_epochs`.
                 @frozen public enum n_epochsPayload: Codable, Hashable, Sendable {
                     /// - Remark: Generated from `#/components/schemas/FineTuningJob/hyperparameters/n_epochs/case1`.
-                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+                    @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                         case auto = "auto"
                     }
                     /// - Remark: Generated from `#/components/schemas/FineTuningJob/hyperparameters/n_epochs/case1`.
@@ -7187,7 +7197,7 @@ public enum Components {
             /// The object type, which is always "fine_tuning.job".
             ///
             /// - Remark: Generated from `#/components/schemas/FineTuningJob/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case fine_tuning_period_job = "fine_tuning.job"
             }
             /// The object type, which is always "fine_tuning.job".
@@ -7205,7 +7215,7 @@ public enum Components {
             /// The current status of the fine-tuning job, which can be either `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
             ///
             /// - Remark: Generated from `#/components/schemas/FineTuningJob/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case validating_files = "validating_files"
                 case queued = "queued"
                 case running = "running"
@@ -7352,7 +7362,7 @@ public enum Components {
             /// The type of the integration being enabled for the fine-tuning job
             ///
             /// - Remark: Generated from `#/components/schemas/FineTuningIntegration/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case wandb = "wandb"
             }
             /// The type of the integration being enabled for the fine-tuning job
@@ -7446,7 +7456,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/FineTuningJobEvent/created_at`.
             public var created_at: Swift.Int
             /// - Remark: Generated from `#/components/schemas/FineTuningJobEvent/level`.
-            @frozen public enum levelPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum levelPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case info = "info"
                 case warn = "warn"
                 case error = "error"
@@ -7456,7 +7466,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/FineTuningJobEvent/message`.
             public var message: Swift.String
             /// - Remark: Generated from `#/components/schemas/FineTuningJobEvent/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case fine_tuning_period_job_period_event = "fine_tuning.job.event"
             }
             /// - Remark: Generated from `#/components/schemas/FineTuningJobEvent/object`.
@@ -7577,7 +7587,7 @@ public enum Components {
             /// The object type, which is always "fine_tuning.job.checkpoint".
             ///
             /// - Remark: Generated from `#/components/schemas/FineTuningJobCheckpoint/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case fine_tuning_period_job_period_checkpoint = "fine_tuning.job.checkpoint"
             }
             /// The object type, which is always "fine_tuning.job.checkpoint".
@@ -7883,7 +7893,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantsApiResponseFormatOption/case1`.
-            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                 case none = "none"
                 case auto = "auto"
             }
@@ -7931,7 +7941,7 @@ public enum Components {
             /// Must be one of `text` or `json_object`.
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantsApiResponseFormat/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text = "text"
                 case json_object = "json_object"
             }
@@ -7961,7 +7971,7 @@ public enum Components {
             /// The object type, which is always `assistant`.
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistant = "assistant"
             }
             /// The object type, which is always `assistant`.
@@ -8204,7 +8214,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateAssistantRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateAssistantRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case gpt_hyphen_4o = "gpt-4o"
                     case gpt_hyphen_4o_hyphen_2024_hyphen_05_hyphen_13 = "gpt-4o-2024-05-13"
                     case gpt_hyphen_4o_hyphen_mini = "gpt-4o-mini"
@@ -8245,19 +8255,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -8266,8 +8276,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -8509,43 +8519,43 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                model = try container.decode(
+                self.model = try container.decode(
                     Components.Schemas.CreateAssistantRequest.modelPayload.self,
                     forKey: .model
                 )
-                name = try container.decodeIfPresent(
+                self.name = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .name
                 )
-                description = try container.decodeIfPresent(
+                self.description = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .description
                 )
-                instructions = try container.decodeIfPresent(
+                self.instructions = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .instructions
                 )
-                tools = try container.decodeIfPresent(
+                self.tools = try container.decodeIfPresent(
                     Components.Schemas.CreateAssistantRequest.toolsPayload.self,
                     forKey: .tools
                 )
-                tool_resources = try container.decodeIfPresent(
+                self.tool_resources = try container.decodeIfPresent(
                     Components.Schemas.CreateAssistantRequest.tool_resourcesPayload.self,
                     forKey: .tool_resources
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
-                temperature = try container.decodeIfPresent(
+                self.temperature = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .temperature
                 )
-                top_p = try container.decodeIfPresent(
+                self.top_p = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .top_p
                 )
-                response_format = try container.decodeIfPresent(
+                self.response_format = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiResponseFormatOption.self,
                     forKey: .response_format
                 )
@@ -8582,13 +8592,13 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1
+                            self.value1
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -8597,7 +8607,7 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1
+                        self.value1
                     ])
                 }
             }
@@ -8812,43 +8822,43 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                model = try container.decodeIfPresent(
+                self.model = try container.decodeIfPresent(
                     Components.Schemas.ModifyAssistantRequest.modelPayload.self,
                     forKey: .model
                 )
-                name = try container.decodeIfPresent(
+                self.name = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .name
                 )
-                description = try container.decodeIfPresent(
+                self.description = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .description
                 )
-                instructions = try container.decodeIfPresent(
+                self.instructions = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .instructions
                 )
-                tools = try container.decodeIfPresent(
+                self.tools = try container.decodeIfPresent(
                     Components.Schemas.ModifyAssistantRequest.toolsPayload.self,
                     forKey: .tools
                 )
-                tool_resources = try container.decodeIfPresent(
+                self.tool_resources = try container.decodeIfPresent(
                     Components.Schemas.ModifyAssistantRequest.tool_resourcesPayload.self,
                     forKey: .tool_resources
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
-                temperature = try container.decodeIfPresent(
+                self.temperature = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .temperature
                 )
-                top_p = try container.decodeIfPresent(
+                self.top_p = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .top_p
                 )
-                response_format = try container.decodeIfPresent(
+                self.response_format = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiResponseFormatOption.self,
                     forKey: .response_format
                 )
@@ -8873,7 +8883,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteAssistantResponse/deleted`.
             public var deleted: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/DeleteAssistantResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case assistant_period_deleted = "assistant.deleted"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteAssistantResponse/object`.
@@ -8945,7 +8955,7 @@ public enum Components {
             /// The type of tool being defined: `code_interpreter`
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantToolsCode/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case code_interpreter = "code_interpreter"
             }
             /// The type of tool being defined: `code_interpreter`
@@ -8968,7 +8978,7 @@ public enum Components {
             /// The type of tool being defined: `file_search`
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantToolsFileSearch/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_search = "file_search"
             }
             /// The type of tool being defined: `file_search`
@@ -9023,7 +9033,7 @@ public enum Components {
             /// The type of tool being defined: `file_search`
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantToolsFileSearchTypeOnly/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_search = "file_search"
             }
             /// The type of tool being defined: `file_search`
@@ -9046,7 +9056,7 @@ public enum Components {
             /// The type of tool being defined: `function`
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantToolsFunction/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of tool being defined: `function`
@@ -9079,7 +9089,7 @@ public enum Components {
             /// The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
             ///
             /// - Remark: Generated from `#/components/schemas/TruncationObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case auto = "auto"
                 case last_messages = "last_messages"
             }
@@ -9121,7 +9131,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantsApiToolChoiceOption/case1`.
-            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable {
+            @frozen public enum Case1Payload: String, Codable, Hashable, Sendable, CaseIterable {
                 case none = "none"
                 case auto = "auto"
                 case required = "required"
@@ -9169,7 +9179,7 @@ public enum Components {
             /// The type of the tool. If type is `function`, the function name must be set
             ///
             /// - Remark: Generated from `#/components/schemas/AssistantsNamedToolChoice/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
                 case code_interpreter = "code_interpreter"
                 case file_search = "file_search"
@@ -9225,7 +9235,7 @@ public enum Components {
             /// The object type, which is always `thread.run`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_run = "thread.run"
             }
             /// The object type, which is always `thread.run`.
@@ -9247,7 +9257,7 @@ public enum Components {
             /// The status of the run, which can be either `queued`, `in_progress`, `requires_action`, `cancelling`, `cancelled`, `failed`, `completed`, `incomplete`, or `expired`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case queued = "queued"
                 case in_progress = "in_progress"
                 case requires_action = "requires_action"
@@ -9269,7 +9279,7 @@ public enum Components {
                 /// For now, this is always `submit_tool_outputs`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/RunObject/required_action/type`.
-                @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case submit_tool_outputs = "submit_tool_outputs"
                 }
                 /// For now, this is always `submit_tool_outputs`.
@@ -9327,7 +9337,7 @@ public enum Components {
                 /// One of `server_error`, `rate_limit_exceeded`, or `invalid_prompt`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/RunObject/last_error/code`.
-                @frozen public enum codePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum codePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case server_error = "server_error"
                     case rate_limit_exceeded = "rate_limit_exceeded"
                     case invalid_prompt = "invalid_prompt"
@@ -9388,7 +9398,7 @@ public enum Components {
                 /// The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run.
                 ///
                 /// - Remark: Generated from `#/components/schemas/RunObject/incomplete_details/reason`.
-                @frozen public enum reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case max_completion_tokens = "max_completion_tokens"
                     case max_prompt_tokens = "max_prompt_tokens"
                 }
@@ -9635,7 +9645,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateRunRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateRunRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case gpt_hyphen_4o = "gpt-4o"
                     case gpt_hyphen_4o_hyphen_2024_hyphen_05_hyphen_13 = "gpt-4o-2024-05-13"
                     case gpt_hyphen_4o_hyphen_mini = "gpt-4o-mini"
@@ -9676,19 +9686,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -9697,8 +9707,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -9885,67 +9895,67 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                assistant_id = try container.decode(
+                self.assistant_id = try container.decode(
                     Swift.String.self,
                     forKey: .assistant_id
                 )
-                model = try container.decodeIfPresent(
+                self.model = try container.decodeIfPresent(
                     Components.Schemas.CreateRunRequest.modelPayload.self,
                     forKey: .model
                 )
-                instructions = try container.decodeIfPresent(
+                self.instructions = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .instructions
                 )
-                additional_instructions = try container.decodeIfPresent(
+                self.additional_instructions = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .additional_instructions
                 )
-                additional_messages = try container.decodeIfPresent(
+                self.additional_messages = try container.decodeIfPresent(
                     [Components.Schemas.CreateMessageRequest].self,
                     forKey: .additional_messages
                 )
-                tools = try container.decodeIfPresent(
+                self.tools = try container.decodeIfPresent(
                     Components.Schemas.CreateRunRequest.toolsPayload.self,
                     forKey: .tools
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
-                temperature = try container.decodeIfPresent(
+                self.temperature = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .temperature
                 )
-                top_p = try container.decodeIfPresent(
+                self.top_p = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .top_p
                 )
-                stream = try container.decodeIfPresent(
+                self.stream = try container.decodeIfPresent(
                     Swift.Bool.self,
                     forKey: .stream
                 )
-                max_prompt_tokens = try container.decodeIfPresent(
+                self.max_prompt_tokens = try container.decodeIfPresent(
                     Swift.Int.self,
                     forKey: .max_prompt_tokens
                 )
-                max_completion_tokens = try container.decodeIfPresent(
+                self.max_completion_tokens = try container.decodeIfPresent(
                     Swift.Int.self,
                     forKey: .max_completion_tokens
                 )
-                truncation_strategy = try container.decodeIfPresent(
+                self.truncation_strategy = try container.decodeIfPresent(
                     Components.Schemas.TruncationObject.self,
                     forKey: .truncation_strategy
                 )
-                tool_choice = try container.decodeIfPresent(
+                self.tool_choice = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiToolChoiceOption.self,
                     forKey: .tool_choice
                 )
-                parallel_tool_calls = try container.decodeIfPresent(
+                self.parallel_tool_calls = try container.decodeIfPresent(
                     Components.Schemas.ParallelToolCalls.self,
                     forKey: .parallel_tool_calls
                 )
-                response_format = try container.decodeIfPresent(
+                self.response_format = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiResponseFormatOption.self,
                     forKey: .response_format
                 )
@@ -10029,7 +10039,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -10098,11 +10108,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                tool_outputs = try container.decode(
+                self.tool_outputs = try container.decode(
                     Components.Schemas.SubmitToolOutputsRunRequest.tool_outputsPayload.self,
                     forKey: .tool_outputs
                 )
-                stream = try container.decodeIfPresent(
+                self.stream = try container.decodeIfPresent(
                     Swift.Bool.self,
                     forKey: .stream
                 )
@@ -10123,7 +10133,7 @@ public enum Components {
             /// The type of tool call the output is required for. For now, this is always `function`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunToolCallObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of tool call the output is required for. For now, this is always `function`.
@@ -10199,7 +10209,7 @@ public enum Components {
                 /// - Remark: Generated from `#/components/schemas/CreateThreadAndRunRequest/model/value1`.
                 public var value1: Swift.String?
                 /// - Remark: Generated from `#/components/schemas/CreateThreadAndRunRequest/model/value2`.
-                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable {
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
                     case gpt_hyphen_4o = "gpt-4o"
                     case gpt_hyphen_4o_hyphen_2024_hyphen_05_hyphen_13 = "gpt-4o-2024-05-13"
                     case gpt_hyphen_4o_hyphen_mini = "gpt-4o-mini"
@@ -10240,19 +10250,19 @@ public enum Components {
                 public init(from decoder: any Decoder) throws {
                     var errors: [any Error] = []
                     do {
-                        value1 = try decoder.decodeFromSingleValueContainer()
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     do {
-                        value2 = try decoder.decodeFromSingleValueContainer()
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
                     } catch {
                         errors.append(error)
                     }
                     try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                         [
-                            value1,
-                            value2
+                            self.value1,
+                            self.value2
                         ],
                         type: Self.self,
                         codingPath: decoder.codingPath,
@@ -10261,8 +10271,8 @@ public enum Components {
                 }
                 public func encode(to encoder: any Encoder) throws {
                     try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                        value1,
-                        value2
+                        self.value1,
+                        self.value2
                     ])
                 }
             }
@@ -10508,67 +10518,67 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                assistant_id = try container.decode(
+                self.assistant_id = try container.decode(
                     Swift.String.self,
                     forKey: .assistant_id
                 )
-                thread = try container.decodeIfPresent(
+                self.thread = try container.decodeIfPresent(
                     Components.Schemas.CreateThreadRequest.self,
                     forKey: .thread
                 )
-                model = try container.decodeIfPresent(
+                self.model = try container.decodeIfPresent(
                     Components.Schemas.CreateThreadAndRunRequest.modelPayload.self,
                     forKey: .model
                 )
-                instructions = try container.decodeIfPresent(
+                self.instructions = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .instructions
                 )
-                tools = try container.decodeIfPresent(
+                self.tools = try container.decodeIfPresent(
                     Components.Schemas.CreateThreadAndRunRequest.toolsPayload.self,
                     forKey: .tools
                 )
-                tool_resources = try container.decodeIfPresent(
+                self.tool_resources = try container.decodeIfPresent(
                     Components.Schemas.CreateThreadAndRunRequest.tool_resourcesPayload.self,
                     forKey: .tool_resources
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
-                temperature = try container.decodeIfPresent(
+                self.temperature = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .temperature
                 )
-                top_p = try container.decodeIfPresent(
+                self.top_p = try container.decodeIfPresent(
                     Swift.Double.self,
                     forKey: .top_p
                 )
-                stream = try container.decodeIfPresent(
+                self.stream = try container.decodeIfPresent(
                     Swift.Bool.self,
                     forKey: .stream
                 )
-                max_prompt_tokens = try container.decodeIfPresent(
+                self.max_prompt_tokens = try container.decodeIfPresent(
                     Swift.Int.self,
                     forKey: .max_prompt_tokens
                 )
-                max_completion_tokens = try container.decodeIfPresent(
+                self.max_completion_tokens = try container.decodeIfPresent(
                     Swift.Int.self,
                     forKey: .max_completion_tokens
                 )
-                truncation_strategy = try container.decodeIfPresent(
+                self.truncation_strategy = try container.decodeIfPresent(
                     Components.Schemas.TruncationObject.self,
                     forKey: .truncation_strategy
                 )
-                tool_choice = try container.decodeIfPresent(
+                self.tool_choice = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiToolChoiceOption.self,
                     forKey: .tool_choice
                 )
-                parallel_tool_calls = try container.decodeIfPresent(
+                self.parallel_tool_calls = try container.decodeIfPresent(
                     Components.Schemas.ParallelToolCalls.self,
                     forKey: .parallel_tool_calls
                 )
-                response_format = try container.decodeIfPresent(
+                self.response_format = try container.decodeIfPresent(
                     Components.Schemas.AssistantsApiResponseFormatOption.self,
                     forKey: .response_format
                 )
@@ -10603,7 +10613,7 @@ public enum Components {
             /// The object type, which is always `thread`.
             ///
             /// - Remark: Generated from `#/components/schemas/ThreadObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread = "thread"
             }
             /// The object type, which is always `thread`.
@@ -10842,15 +10852,15 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                messages = try container.decodeIfPresent(
+                self.messages = try container.decodeIfPresent(
                     [Components.Schemas.CreateMessageRequest].self,
                     forKey: .messages
                 )
-                tool_resources = try container.decodeIfPresent(
+                self.tool_resources = try container.decodeIfPresent(
                     Components.Schemas.CreateThreadRequest.tool_resourcesPayload.self,
                     forKey: .tool_resources
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -10953,11 +10963,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                tool_resources = try container.decodeIfPresent(
+                self.tool_resources = try container.decodeIfPresent(
                     Components.Schemas.ModifyThreadRequest.tool_resourcesPayload.self,
                     forKey: .tool_resources
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -10974,7 +10984,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteThreadResponse/deleted`.
             public var deleted: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/DeleteThreadResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_deleted = "thread.deleted"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteThreadResponse/object`.
@@ -11052,7 +11062,7 @@ public enum Components {
             /// The object type, which is always `thread.message`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_message = "thread.message"
             }
             /// The object type, which is always `thread.message`.
@@ -11070,7 +11080,7 @@ public enum Components {
             /// The status of the message, which can be either `in_progress`, `incomplete`, or `completed`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case in_progress = "in_progress"
                 case incomplete = "incomplete"
                 case completed = "completed"
@@ -11086,7 +11096,7 @@ public enum Components {
                 /// The reason the message is incomplete.
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageObject/incomplete_details/reason`.
-                @frozen public enum reasonPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum reasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case content_filter = "content_filter"
                     case max_tokens = "max_tokens"
                     case run_cancelled = "run_cancelled"
@@ -11123,7 +11133,7 @@ public enum Components {
             /// The entity that produced the message. One of `user` or `assistant`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageObject/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case user = "user"
                 case assistant = "assistant"
             }
@@ -11348,7 +11358,7 @@ public enum Components {
             /// The object type, which is always `thread.message.delta`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_message_period_delta = "thread.message.delta"
             }
             /// The object type, which is always `thread.message.delta`.
@@ -11362,7 +11372,7 @@ public enum Components {
                 /// The entity that produced the message. One of `user` or `assistant`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageDeltaObject/delta/role`.
-                @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case user = "user"
                     case assistant = "assistant"
                 }
@@ -11473,7 +11483,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/CreateMessageRequest/role`.
-            @frozen public enum rolePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum rolePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case user = "user"
                 case assistant = "assistant"
             }
@@ -11679,19 +11689,19 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                role = try container.decode(
+                self.role = try container.decode(
                     Components.Schemas.CreateMessageRequest.rolePayload.self,
                     forKey: .role
                 )
-                content = try container.decode(
+                self.content = try container.decode(
                     Components.Schemas.CreateMessageRequest.contentPayload.self,
                     forKey: .content
                 )
-                attachments = try container.decodeIfPresent(
+                self.attachments = try container.decodeIfPresent(
                     Components.Schemas.CreateMessageRequest.attachmentsPayload.self,
                     forKey: .attachments
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -11722,7 +11732,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -11738,7 +11748,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteMessageResponse/deleted`.
             public var deleted: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/DeleteMessageResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_message_period_deleted = "thread.message.deleted"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteMessageResponse/object`.
@@ -11812,7 +11822,7 @@ public enum Components {
             /// Always `image_file`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageContentImageFileObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image_file = "image_file"
             }
             /// Always `image_file`.
@@ -11828,7 +11838,7 @@ public enum Components {
                 /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageContentImageFileObject/image_file/detail`.
-                @frozen public enum detailPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum detailPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case auto = "auto"
                     case low = "low"
                     case high = "high"
@@ -11884,7 +11894,7 @@ public enum Components {
             /// Always `image_file`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaContentImageFileObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image_file = "image_file"
             }
             /// Always `image_file`.
@@ -11900,7 +11910,7 @@ public enum Components {
                 /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageDeltaContentImageFileObject/image_file/detail`.
-                @frozen public enum detailPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum detailPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case auto = "auto"
                     case low = "low"
                     case high = "high"
@@ -11956,7 +11966,7 @@ public enum Components {
             /// The type of the content part.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageContentImageUrlObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image_url = "image_url"
             }
             /// The type of the content part.
@@ -11972,7 +11982,7 @@ public enum Components {
                 /// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`. Default value is `auto`
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageContentImageUrlObject/image_url/detail`.
-                @frozen public enum detailPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum detailPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case auto = "auto"
                     case low = "low"
                     case high = "high"
@@ -12028,7 +12038,7 @@ public enum Components {
             /// Always `image_url`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaContentImageUrlObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image_url = "image_url"
             }
             /// Always `image_url`.
@@ -12044,7 +12054,7 @@ public enum Components {
                 /// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/MessageDeltaContentImageUrlObject/image_url/detail`.
-                @frozen public enum detailPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum detailPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case auto = "auto"
                     case low = "low"
                     case high = "high"
@@ -12100,7 +12110,7 @@ public enum Components {
             /// Always `text`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageContentTextObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text = "text"
             }
             /// Always `text`.
@@ -12195,7 +12205,7 @@ public enum Components {
             /// Always `text`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageRequestContentTextObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text = "text"
             }
             /// Always `text`.
@@ -12230,7 +12240,7 @@ public enum Components {
             /// Always `file_citation`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageContentTextAnnotationsFileCitationObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_citation = "file_citation"
             }
             /// Always `file_citation`.
@@ -12300,7 +12310,7 @@ public enum Components {
             /// Always `file_path`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageContentTextAnnotationsFilePathObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_path = "file_path"
             }
             /// Always `file_path`.
@@ -12374,7 +12384,7 @@ public enum Components {
             /// Always `text`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaContentTextObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case text = "text"
             }
             /// Always `text`.
@@ -12477,7 +12487,7 @@ public enum Components {
             /// Always `file_citation`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaContentTextAnnotationsFileCitationObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_citation = "file_citation"
             }
             /// Always `file_citation`.
@@ -12565,7 +12575,7 @@ public enum Components {
             /// Always `file_path`.
             ///
             /// - Remark: Generated from `#/components/schemas/MessageDeltaContentTextAnnotationsFilePathObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_path = "file_path"
             }
             /// Always `file_path`.
@@ -12644,7 +12654,7 @@ public enum Components {
             /// The object type, which is always `thread.run.step`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_run_period_step = "thread.run.step"
             }
             /// The object type, which is always `thread.run.step`.
@@ -12670,7 +12680,7 @@ public enum Components {
             /// The type of run step, which can be either `message_creation` or `tool_calls`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case message_creation = "message_creation"
                 case tool_calls = "tool_calls"
             }
@@ -12681,7 +12691,7 @@ public enum Components {
             /// The status of the run step, which can be either `in_progress`, `cancelled`, `failed`, `completed`, or `expired`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case in_progress = "in_progress"
                 case cancelled = "cancelled"
                 case failed = "failed"
@@ -12740,7 +12750,7 @@ public enum Components {
                 /// One of `server_error` or `rate_limit_exceeded`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/RunStepObject/last_error/code`.
-                @frozen public enum codePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum codePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case server_error = "server_error"
                     case rate_limit_exceeded = "rate_limit_exceeded"
                 }
@@ -12881,7 +12891,7 @@ public enum Components {
             /// The object type, which is always `thread.run.step.delta`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case thread_period_run_period_step_period_delta = "thread.run.step.delta"
             }
             /// The object type, which is always `thread.run.step.delta`.
@@ -13017,7 +13027,7 @@ public enum Components {
             /// Always `message_creation`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsMessageCreationObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case message_creation = "message_creation"
             }
             /// Always `message_creation`.
@@ -13067,7 +13077,7 @@ public enum Components {
             /// Always `message_creation`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsMessageCreationObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case message_creation = "message_creation"
             }
             /// Always `message_creation`.
@@ -13117,7 +13127,7 @@ public enum Components {
             /// Always `tool_calls`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case tool_calls = "tool_calls"
             }
             /// Always `tool_calls`.
@@ -13203,7 +13213,7 @@ public enum Components {
             /// Always `tool_calls`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case tool_calls = "tool_calls"
             }
             /// Always `tool_calls`.
@@ -13293,7 +13303,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsCodeObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case code_interpreter = "code_interpreter"
             }
             /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
@@ -13408,7 +13418,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsCodeObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case code_interpreter = "code_interpreter"
             }
             /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
@@ -13519,7 +13529,7 @@ public enum Components {
             /// Always `logs`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsCodeOutputLogsObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case logs = "logs"
             }
             /// Always `logs`.
@@ -13558,7 +13568,7 @@ public enum Components {
             /// Always `logs`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case logs = "logs"
             }
             /// Always `logs`.
@@ -13595,7 +13605,7 @@ public enum Components {
             /// Always `image`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsCodeOutputImageObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image = "image"
             }
             /// Always `image`.
@@ -13647,7 +13657,7 @@ public enum Components {
             /// Always `image`.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsCodeOutputImageObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case image = "image"
             }
             /// Always `image`.
@@ -13703,7 +13713,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `file_search` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsFileSearchObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_search = "file_search"
             }
             /// The type of tool call. This is always going to be `file_search` for this type of tool call.
@@ -13748,7 +13758,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `file_search` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsFileSearchObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case file_search = "file_search"
             }
             /// The type of tool call. This is always going to be `file_search` for this type of tool call.
@@ -13793,7 +13803,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `function` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDetailsToolCallsFunctionObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of tool call. This is always going to be `function` for this type of tool call.
@@ -13875,7 +13885,7 @@ public enum Components {
             /// The type of tool call. This is always going to be `function` for this type of tool call.
             ///
             /// - Remark: Generated from `#/components/schemas/RunStepDeltaStepDetailsToolCallsFunctionObject/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case function = "function"
             }
             /// The type of tool call. This is always going to be `function` for this type of tool call.
@@ -13955,7 +13965,7 @@ public enum Components {
             /// Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreExpirationAfter/anchor`.
-            @frozen public enum anchorPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum anchorPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case last_active_at = "last_active_at"
             }
             /// Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
@@ -13994,7 +14004,7 @@ public enum Components {
             /// The object type, which is always `vector_store`.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vector_store = "vector_store"
             }
             /// The object type, which is always `vector_store`.
@@ -14069,7 +14079,7 @@ public enum Components {
             /// The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case expired = "expired"
                 case in_progress = "in_progress"
                 case completed = "completed"
@@ -14234,23 +14244,23 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                file_ids = try container.decodeIfPresent(
+                self.file_ids = try container.decodeIfPresent(
                     [Swift.String].self,
                     forKey: .file_ids
                 )
-                name = try container.decodeIfPresent(
+                self.name = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .name
                 )
-                expires_after = try container.decodeIfPresent(
+                self.expires_after = try container.decodeIfPresent(
                     Components.Schemas.VectorStoreExpirationAfter.self,
                     forKey: .expires_after
                 )
-                chunking_strategy = try container.decodeIfPresent(
+                self.chunking_strategy = try container.decodeIfPresent(
                     Components.Schemas.CreateVectorStoreRequest.chunking_strategyPayload.self,
                     forKey: .chunking_strategy
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -14298,15 +14308,15 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                name = try container.decodeIfPresent(
+                self.name = try container.decodeIfPresent(
                     Swift.String.self,
                     forKey: .name
                 )
-                expires_after = try container.decodeIfPresent(
+                self.expires_after = try container.decodeIfPresent(
                     Components.Schemas.VectorStoreExpirationAfter.self,
                     forKey: .expires_after
                 )
-                metadata = try container.decodeIfPresent(
+                self.metadata = try container.decodeIfPresent(
                     OpenAPIRuntime.OpenAPIObjectContainer.self,
                     forKey: .metadata
                 )
@@ -14365,7 +14375,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreResponse/deleted`.
             public var deleted: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vector_store_period_deleted = "vector_store.deleted"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreResponse/object`.
@@ -14402,7 +14412,7 @@ public enum Components {
             /// The object type, which is always `vector_store.file`.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vector_store_period_file = "vector_store.file"
             }
             /// The object type, which is always `vector_store.file`.
@@ -14424,7 +14434,7 @@ public enum Components {
             /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case in_progress = "in_progress"
                 case completed = "completed"
                 case cancelled = "cancelled"
@@ -14441,7 +14451,7 @@ public enum Components {
                 /// One of `server_error` or `rate_limit_exceeded`.
                 ///
                 /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error/code`.
-                @frozen public enum codePayload: String, Codable, Hashable, Sendable {
+                @frozen public enum codePayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case internal_error = "internal_error"
                     case file_not_found = "file_not_found"
                     case parsing_error = "parsing_error"
@@ -14565,7 +14575,7 @@ public enum Components {
             /// Always `other`.
             ///
             /// - Remark: Generated from `#/components/schemas/OtherChunkingStrategyResponseParam/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case other = "other"
             }
             /// Always `other`.
@@ -14584,7 +14594,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                _type = try container.decode(
+                self._type = try container.decode(
                     Components.Schemas.OtherChunkingStrategyResponseParam._typePayload.self,
                     forKey: ._type
                 )
@@ -14598,7 +14608,7 @@ public enum Components {
             /// Always `static`.
             ///
             /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyResponseParam/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case _static = "static"
             }
             /// Always `static`.
@@ -14625,11 +14635,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                _type = try container.decode(
+                self._type = try container.decode(
                     Components.Schemas.StaticChunkingStrategyResponseParam._typePayload.self,
                     forKey: ._type
                 )
-                _static = try container.decode(
+                self._static = try container.decode(
                     Components.Schemas.StaticChunkingStrategy.self,
                     forKey: ._static
                 )
@@ -14670,11 +14680,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                max_chunk_size_tokens = try container.decode(
+                self.max_chunk_size_tokens = try container.decode(
                     Swift.Int.self,
                     forKey: .max_chunk_size_tokens
                 )
-                chunk_overlap_tokens = try container.decode(
+                self.chunk_overlap_tokens = try container.decode(
                     Swift.Int.self,
                     forKey: .chunk_overlap_tokens
                 )
@@ -14691,7 +14701,7 @@ public enum Components {
             /// Always `auto`.
             ///
             /// - Remark: Generated from `#/components/schemas/AutoChunkingStrategyRequestParam/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case auto = "auto"
             }
             /// Always `auto`.
@@ -14710,7 +14720,7 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                _type = try container.decode(
+                self._type = try container.decode(
                     Components.Schemas.AutoChunkingStrategyRequestParam._typePayload.self,
                     forKey: ._type
                 )
@@ -14724,7 +14734,7 @@ public enum Components {
             /// Always `static`.
             ///
             /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyRequestParam/type`.
-            @frozen public enum _typePayload: String, Codable, Hashable, Sendable {
+            @frozen public enum _typePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case _static = "static"
             }
             /// Always `static`.
@@ -14751,11 +14761,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                _type = try container.decode(
+                self._type = try container.decode(
                     Components.Schemas.StaticChunkingStrategyRequestParam._typePayload.self,
                     forKey: ._type
                 )
-                _static = try container.decode(
+                self._static = try container.decode(
                     Components.Schemas.StaticChunkingStrategy.self,
                     forKey: ._static
                 )
@@ -14828,11 +14838,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                file_id = try container.decode(
+                self.file_id = try container.decode(
                     Swift.String.self,
                     forKey: .file_id
                 )
-                chunking_strategy = try container.decodeIfPresent(
+                self.chunking_strategy = try container.decodeIfPresent(
                     Components.Schemas.ChunkingStrategyRequestParam.self,
                     forKey: .chunking_strategy
                 )
@@ -14890,7 +14900,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreFileResponse/deleted`.
             public var deleted: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreFileResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vector_store_period_file_period_deleted = "vector_store.file.deleted"
             }
             /// - Remark: Generated from `#/components/schemas/DeleteVectorStoreFileResponse/object`.
@@ -14927,7 +14937,7 @@ public enum Components {
             /// The object type, which is always `vector_store.file_batch`.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case vector_store_period_files_batch = "vector_store.files_batch"
             }
             /// The object type, which is always `vector_store.file_batch`.
@@ -14945,7 +14955,7 @@ public enum Components {
             /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
             ///
             /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case in_progress = "in_progress"
                 case completed = "completed"
                 case cancelled = "cancelled"
@@ -15067,11 +15077,11 @@ public enum Components {
             }
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
-                file_ids = try container.decode(
+                self.file_ids = try container.decode(
                     [Swift.String].self,
                     forKey: .file_ids
                 )
-                chunking_strategy = try container.decodeIfPresent(
+                self.chunking_strategy = try container.decodeIfPresent(
                     Components.Schemas.ChunkingStrategyRequestParam.self,
                     forKey: .chunking_strategy
                 )
@@ -15184,7 +15194,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1`.
             public struct Case1Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_created = "thread.created"
                 }
                 /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/event`.
@@ -15240,7 +15250,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case1`.
             public struct Case1Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case1/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_created = "thread.run.created"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case1/event`.
@@ -15273,7 +15283,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case2`.
             public struct Case2Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case2/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_queued = "thread.run.queued"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case2/event`.
@@ -15306,7 +15316,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case3`.
             public struct Case3Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case3/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_in_progress = "thread.run.in_progress"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case3/event`.
@@ -15339,7 +15349,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case4`.
             public struct Case4Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case4/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_requires_action = "thread.run.requires_action"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case4/event`.
@@ -15372,7 +15382,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case5`.
             public struct Case5Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case5/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_completed = "thread.run.completed"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case5/event`.
@@ -15405,7 +15415,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case6`.
             public struct Case6Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case6/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_incomplete = "thread.run.incomplete"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case6/event`.
@@ -15438,7 +15448,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case7`.
             public struct Case7Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case7/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_failed = "thread.run.failed"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case7/event`.
@@ -15471,7 +15481,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case8`.
             public struct Case8Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case8/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_cancelling = "thread.run.cancelling"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case8/event`.
@@ -15504,7 +15514,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case9`.
             public struct Case9Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case9/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_cancelled = "thread.run.cancelled"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case9/event`.
@@ -15537,7 +15547,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case10`.
             public struct Case10Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case10/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_expired = "thread.run.expired"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStreamEvent/case10/event`.
@@ -15665,7 +15675,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case1`.
             public struct Case1Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case1/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_created = "thread.run.step.created"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case1/event`.
@@ -15698,7 +15708,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case2`.
             public struct Case2Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case2/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_in_progress = "thread.run.step.in_progress"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case2/event`.
@@ -15731,7 +15741,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case3`.
             public struct Case3Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case3/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_delta = "thread.run.step.delta"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case3/event`.
@@ -15764,7 +15774,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case4`.
             public struct Case4Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case4/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_completed = "thread.run.step.completed"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case4/event`.
@@ -15797,7 +15807,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case5`.
             public struct Case5Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case5/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_failed = "thread.run.step.failed"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case5/event`.
@@ -15830,7 +15840,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case6`.
             public struct Case6Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case6/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_cancelled = "thread.run.step.cancelled"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case6/event`.
@@ -15863,7 +15873,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case7`.
             public struct Case7Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case7/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_run_period_step_period_expired = "thread.run.step.expired"
                 }
                 /// - Remark: Generated from `#/components/schemas/RunStepStreamEvent/case7/event`.
@@ -15967,7 +15977,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case1`.
             public struct Case1Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case1/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_message_period_created = "thread.message.created"
                 }
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case1/event`.
@@ -16000,7 +16010,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case2`.
             public struct Case2Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case2/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_message_period_in_progress = "thread.message.in_progress"
                 }
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case2/event`.
@@ -16033,7 +16043,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case3`.
             public struct Case3Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case3/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_message_period_delta = "thread.message.delta"
                 }
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case3/event`.
@@ -16066,7 +16076,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case4`.
             public struct Case4Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case4/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_message_period_completed = "thread.message.completed"
                 }
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case4/event`.
@@ -16099,7 +16109,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case5`.
             public struct Case5Payload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case5/event`.
-                @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case thread_period_message_period_incomplete = "thread.message.incomplete"
                 }
                 /// - Remark: Generated from `#/components/schemas/MessageStreamEvent/case5/event`.
@@ -16185,7 +16195,7 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/ErrorEvent`.
         public struct ErrorEvent: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/ErrorEvent/event`.
-            @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case error = "error"
             }
             /// - Remark: Generated from `#/components/schemas/ErrorEvent/event`.
@@ -16214,13 +16224,13 @@ public enum Components {
         /// - Remark: Generated from `#/components/schemas/DoneEvent`.
         public struct DoneEvent: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/DoneEvent/event`.
-            @frozen public enum eventPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum eventPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case done = "done"
             }
             /// - Remark: Generated from `#/components/schemas/DoneEvent/event`.
             public var event: Components.Schemas.DoneEvent.eventPayload
             /// - Remark: Generated from `#/components/schemas/DoneEvent/data`.
-            @frozen public enum dataPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum dataPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case _lbrack_DONE_rbrack_ = "[DONE]"
             }
             /// - Remark: Generated from `#/components/schemas/DoneEvent/data`.
@@ -16249,7 +16259,7 @@ public enum Components {
             /// The object type, which is always `batch`.
             ///
             /// - Remark: Generated from `#/components/schemas/Batch/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case batch = "batch"
             }
             /// The object type, which is always `batch`.
@@ -16343,7 +16353,7 @@ public enum Components {
             /// The current status of the batch.
             ///
             /// - Remark: Generated from `#/components/schemas/Batch/status`.
-            @frozen public enum statusPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum statusPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case validating = "validating"
                 case failed = "failed"
                 case in_progress = "in_progress"
@@ -16547,7 +16557,7 @@ public enum Components {
             /// The HTTP method to be used for the request. Currently only `POST` is supported.
             ///
             /// - Remark: Generated from `#/components/schemas/BatchRequestInput/method`.
-            @frozen public enum methodPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum methodPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case POST = "POST"
             }
             /// The HTTP method to be used for the request. Currently only `POST` is supported.
@@ -16695,7 +16705,7 @@ public enum Components {
             /// - Remark: Generated from `#/components/schemas/ListBatchesResponse/has_more`.
             public var has_more: Swift.Bool
             /// - Remark: Generated from `#/components/schemas/ListBatchesResponse/object`.
-            @frozen public enum objectPayload: String, Codable, Hashable, Sendable {
+            @frozen public enum objectPayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case list = "list"
             }
             /// - Remark: Generated from `#/components/schemas/ListBatchesResponse/object`.
@@ -20511,7 +20521,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/assistants/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/assistants/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -21728,7 +21738,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/messages/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/messages/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -22602,7 +22612,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/runs/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/runs/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -23505,7 +23515,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/runs/{run_id}/steps/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/threads/{thread_id}/runs/{run_id}/steps/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -23816,7 +23826,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/vector_stores/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/vector_stores/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -24513,7 +24523,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/files/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/files/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -24533,7 +24543,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/files/GET/query/before`.
                 public var before: Swift.String?
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/files/GET/query/filter`.
-                @frozen public enum filterPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum filterPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case in_progress = "in_progress"
                     case completed = "completed"
                     case failed = "failed"
@@ -25552,7 +25562,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/file_batches/{batch_id}/files/GET/query/limit`.
                 public var limit: Swift.Int?
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/file_batches/{batch_id}/files/GET/query/order`.
-                @frozen public enum orderPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum orderPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case asc = "asc"
                     case desc = "desc"
                 }
@@ -25572,7 +25582,7 @@ public enum Operations {
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/file_batches/{batch_id}/files/GET/query/before`.
                 public var before: Swift.String?
                 /// - Remark: Generated from `#/paths/vector_stores/{vector_store_id}/file_batches/{batch_id}/files/GET/query/filter`.
-                @frozen public enum filterPayload: String, Codable, Hashable, Sendable {
+                @frozen public enum filterPayload: String, Codable, Hashable, Sendable, CaseIterable {
                     case in_progress = "in_progress"
                     case completed = "completed"
                     case failed = "failed"
@@ -25892,7 +25902,7 @@ public enum Operations {
                     /// The endpoint to be used for all requests in the batch. Currently `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported. Note that `/v1/embeddings` batches are also restricted to a maximum of 50,000 embedding inputs across all requests in the batch.
                     ///
                     /// - Remark: Generated from `#/paths/batches/POST/requestBody/json/endpoint`.
-                    @frozen public enum endpointPayload: String, Codable, Hashable, Sendable {
+                    @frozen public enum endpointPayload: String, Codable, Hashable, Sendable, CaseIterable {
                         case _sol_v1_sol_chat_sol_completions = "/v1/chat/completions"
                         case _sol_v1_sol_embeddings = "/v1/embeddings"
                         case _sol_v1_sol_completions = "/v1/completions"
@@ -25904,7 +25914,7 @@ public enum Operations {
                     /// The time frame within which the batch should be processed. Currently only `24h` is supported.
                     ///
                     /// - Remark: Generated from `#/paths/batches/POST/requestBody/json/completion_window`.
-                    @frozen public enum completion_windowPayload: String, Codable, Hashable, Sendable {
+                    @frozen public enum completion_windowPayload: String, Codable, Hashable, Sendable, CaseIterable {
                         case _24h = "24h"
                     }
                     /// The time frame within which the batch should be processed. Currently only `24h` is supported.

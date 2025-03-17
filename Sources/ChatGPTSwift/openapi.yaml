@@ -8972,7 +8972,7 @@ components:
                     anyOf:
                         - type: string
                         - type: string
-                          enum: ["babbage-002", "davinci-002", "gpt-3.5-turbo"]
+                          enum: ["babbage-002", "davinci-002", "gpt-3.5-turbo", "gpt-4o-mini"]
                     x-oaiTypeLabel: string
                 training_file:
                     description: |

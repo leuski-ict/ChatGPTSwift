@@ -18,7 +18,8 @@ public typealias ChatCompletionTool = Components.Schemas.ChatCompletionTool
 public typealias ChatCompletionResponseMessage = Components.Schemas.ChatCompletionResponseMessage
 
 public enum ChatGPTModel: Codable, Sendable, Hashable, CustomStringConvertible {
-  public typealias SystemPayload = Components.Schemas.CreateChatCompletionRequest.modelPayload.Value2Payload
+  public typealias Payload = Components.Schemas.CreateChatCompletionRequest.modelPayload
+  public typealias SystemPayload = Payload.Value2Payload
 
   case system(SystemPayload)
   case user(String)
@@ -32,7 +33,7 @@ public enum ChatGPTModel: Codable, Sendable, Hashable, CustomStringConvertible {
     }
   }
 
-  var payload: Components.Schemas.CreateChatCompletionRequest.modelPayload {
+  var payload: Payload {
     switch self {
     case .system(let value):
         .init(value1: nil, value2: value)

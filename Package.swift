@@ -37,7 +37,10 @@ let package = Package(
                     condition: .when(platforms: [.linux])
                 ),
             ]
-            // plugins: [.plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")]
+//            , plugins: [.plugin(name: "OpenAPIGenerator",
+//                                package: "swift-openapi-generator")]
+            , swiftSettings: [.unsafeFlags(["-supress-warnings"])]
+
             ),
         .executableTarget(
             name: "SampleApp",
