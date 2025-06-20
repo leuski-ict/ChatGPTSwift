@@ -66,7 +66,6 @@ public class ChatGPTAPI: @unchecked Sendable {
     }
 
     public let client: Client
-    private let urlString = "https://api.openai.com/v1"
     private let gptEncoder = GPTEncoder()
     public private(set) var historyList = [Message]()
     private let apiKey: String
@@ -81,7 +80,7 @@ public class ChatGPTAPI: @unchecked Sendable {
         .init(role: "system", content: content)
     }
     
-    public init(apiKey: String, timeout: TimeInterval = 60) {
+    public init(apiKey: String, timeout: TimeInterval = 60, serverURL: URL? = nil) {
         self.apiKey = apiKey
         let clientTransport: ClientTransport
         #if os(Linux)
@@ -92,7 +91,7 @@ public class ChatGPTAPI: @unchecked Sendable {
         let session = URLSession(configuration: configuration)
         clientTransport = URLSessionTransport(configuration: .init(session: session))
         #endif
-        self.client = Client(serverURL: URL(string: self.urlString)!,
+        self.client = Client(serverURL: serverURL ?? URL(string: "https://api.openai.com/v1")!,
             transport: clientTransport,
             middlewares: [AuthMiddleware(apiKey: apiKey)])
     }
