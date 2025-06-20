@@ -7082,11 +7082,11 @@ public enum Components {
                 /// A machine-readable error code.
                 ///
                 /// - Remark: Generated from `#/components/schemas/FineTuningJob/error/code`.
-                public var code: Swift.String
+                public var code: Swift.String?
                 /// A human-readable error message.
                 ///
                 /// - Remark: Generated from `#/components/schemas/FineTuningJob/error/message`.
-                public var message: Swift.String
+                public var message: Swift.String?
                 /// The parameter that was invalid, usually `training_file` or `validation_file`. This field will be null if the failure was not parameter-specific.
                 ///
                 /// - Remark: Generated from `#/components/schemas/FineTuningJob/error/param`.
@@ -7098,8 +7098,8 @@ public enum Components {
                 ///   - message: A human-readable error message.
                 ///   - param: The parameter that was invalid, usually `training_file` or `validation_file`. This field will be null if the failure was not parameter-specific.
                 public init(
-                    code: Swift.String,
-                    message: Swift.String,
+                    code: Swift.String? = nil,
+                    message: Swift.String? = nil,
                     param: Swift.String? = nil
                 ) {
                     self.code = code
