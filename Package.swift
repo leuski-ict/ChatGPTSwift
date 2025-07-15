@@ -37,6 +37,7 @@ let package = Package(
                     condition: .when(platforms: [.linux])
                 ),
             ]
+//            , exclude: ["GeneratedSources"]
             , swiftSettings: [.unsafeFlags(["-suppress-warnings"])]
 //            , plugins: [.plugin(name: "OpenAPIGenerator",
 //                                package: "swift-openapi-generator")]
